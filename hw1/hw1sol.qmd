@@ -1,7 +1,7 @@
 ---
 title: "Biostat 203B Homework 1"
 subtitle: Due Jan 26, 2024 @ 11:59PM
-author: Your Name and UID
+author: Li Zhang Name and 206305918
 format:
   html:
     theme: cosmo
@@ -41,9 +41,14 @@ sessionInfo()
 
 5. After this course, you can make this repository public and use it to demonstrate your skill sets on job market.
 
+**Answer: Here is the link to my GitHub repository: <https://github.com/lizhangmorning/biostat-203b-2024-winter.git>.**
+
 ## Q2. Data ethics training
 
 This exercise (and later in this course) uses the [MIMIC-IV data v2.2](https://physionet.org/content/mimiciv/2.2/), a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at <https://mimic.mit.edu/docs/gettingstarted/> to (1) complete the CITI `Data or Specimens Only Research` course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. **You must complete Q2 before working on the remaining questions.** (Hint: The CITI training takes a few hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)
+
+
+**Answer: Here is my completion report: <https://www.citiprogram.org/verify/?ke2c152ef-3d9b-4e75-a212-b36710ac96bc-60370526>. Here is my completion certificate: <https://www.citiprogram.org/verify/?w19f80c35-fb60-4430-ab7e-e7932270fe49-60370526>.**
 
 ## Q3. Linux Shell Commands
 
