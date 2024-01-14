@@ -1,7 +1,7 @@
 ---
 title: "Biostat 203B Homework 1"
 subtitle: Due Jan 26, 2024 @ 11:59PM
-author: Li Zhang Name and 206305918
+author: Li Zhang 206305918
 format:
   html:
     theme: cosmo
@@ -41,14 +41,14 @@ sessionInfo()
 
 5. After this course, you can make this repository public and use it to demonstrate your skill sets on job market.
 
-**Answer: Here is the link to my GitHub repository: <https://github.com/lizhangmorning/biostat-203b-2024-winter.git>.**
+**Answer: **Here is the link to my GitHub repository: <https://github.com/lizhangmorning/biostat-203b-2024-winter.git>.
 
 ## Q2. Data ethics training
 
 This exercise (and later in this course) uses the [MIMIC-IV data v2.2](https://physionet.org/content/mimiciv/2.2/), a freely accessible critical care database developed by the MIT Lab for Computational Physiology. Follow the instructions at <https://mimic.mit.edu/docs/gettingstarted/> to (1) complete the CITI `Data or Specimens Only Research` course and (2) obtain the PhysioNet credential for using the MIMIC-IV data. Display the verification links to your completion report and completion certificate here. **You must complete Q2 before working on the remaining questions.** (Hint: The CITI training takes a few hours and the PhysioNet credentialing takes a couple days; do not leave it to the last minute.)
 
 
-**Answer: Here is my completion report: <https://www.citiprogram.org/verify/?ke2c152ef-3d9b-4e75-a212-b36710ac96bc-60370526>. Here is my completion certificate: <https://www.citiprogram.org/verify/?w19f80c35-fb60-4430-ab7e-e7932270fe49-60370526>.**
+**Answer: **Here is my completion report: <https://www.citiprogram.org/verify/?ke2c152ef-3d9b-4e75-a212-b36710ac96bc-60370526>. Here is my completion certificate: <https://www.citiprogram.org/verify/?w19f80c35-fb60-4430-ab7e-e7932270fe49-60370526>.
 
 ## Q3. Linux Shell Commands
 
@@ -60,6 +60,12 @@ ls -l ~/mimic/
 Refer to the documentation <https://physionet.org/content/mimiciv/2.2/> for details of data files. Please, do **not** put these data files into Git; they are big. Do **not** copy them into your directory. Do **not** decompress the gz data files. These create unnecessary big files and are not big-data-friendly practices. Read from the data folder `~/mimic` directly in following exercises. 
 
   Use Bash commands to answer following questions.
+
+**Answer:** I created a symbolic link 'mimic' to my MIMIC data folder. 
+Here is the output of `ls -l ~/mimic/`:
+```{bash}
+ls -l ~/mimic/
+```
 
 2. Display the contents in the folders `hosp` and `icu` using Bash command `ls -l`. Why are these data files distributed as `.csv.gz` files instead of `.csv` (comma separated values) files? Read the page <https://mimic.mit.edu/docs/iv/> to understand what's in each folder.
 
@@ -137,3 +143,8 @@ Try following commands in Bash and interpret the results: `cal`, `cal 2024`, `ca
 The point of this exercise is (1) to get the book for free and (2) to see an example how a complicated project such as a book can be organized in a reproducible way.
 
 For grading purpose, include a screenshot of Section 4.1.5 of the book here.
+
+**Answer: **Here is the screenshot of Section 4.1.5 of the book:
+
+![Section 4.1.5 of the book](./section4.1.5-screenshot.png)
+
