@@ -49,6 +49,9 @@ This exercise (and later in this course) uses the [MIMIC-IV data v2.2](https://p
 
 **Answer: **Here is my completion report: <https://www.citiprogram.org/verify/?ke2c152ef-3d9b-4e75-a212-b36710ac96bc-60370526>. Here is my completion certificate: <https://www.citiprogram.org/verify/?w19f80c35-fb60-4430-ab7e-e7932270fe49-60370526>.
 
+Here is my PhysioNet credential screenshot:
+![PhysioNet Credetial](./PhysioNet credential-screenshot.png) Here is my MIMIC-IV data access screenshot: ![MIMIC-IV data access](./mimicIV-screenshot.png).
+
 ## Q3. Linux Shell Commands
 
 1. Make the MIMIC v2.2 data available at location `~/mimic`. 
@@ -109,13 +112,13 @@ echo "Number of rows in admissions.csv.gz: $row"
 ```
 
 ```{bash}
-unique_patients=$(zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $1}' | sort | uniq | wc -l)
+unique_patients=$(zcat < ~/mimic/hosp/admissions.csv.gz | tail -n +2 | awk -F, '{print $1}' | sort | uniq | wc -l)
 echo "Number of unique patients in admissions.csv.gz: $unique_patients"
-patients_count=$(zcat < ~/mimic/hosp/patients.csv.gz | tail -n+2 |  wc -l)
+patients_count=$(zcat < ~/mimic/hosp/patients.csv.gz | tail -n +2 |  wc -l)
 echo "Number of patients in patients.csv.gz: $patients_count"
 ```
 
-**Answer:** There are 431232 rows in the `admissions.csv.gz` file. There are 180734 unique patients in the `admissions.csv.gz` file. There are 299712 patients in the `patients.csv.gz` file. The number of unique patients in the `admissions.csv.gz` file does not match the number of patients in the `patients.csv.gz` file because some patients have multiple admissions.
+**Answer:** There are 431232 rows in the `admissions.csv.gz` file. There are 180733 unique patients in the `admissions.csv.gz` file. There are 299712 patients in the `patients.csv.gz` file. The number of unique patients in the `admissions.csv.gz` file does not match the number of patients in the `patients.csv.gz` file because some patients have multiple admissions.
 
 6. What are the possible values taken by each of the variable `admission_type`, `admission_location`, `insurance`, and `race`? Also report the count for each unique value of these variables. (Hint: combine Linux commands `zcat`, `head`/`tail`, `awk`, `uniq -c`, `wc`, and so on; skip the header line.)
 
@@ -124,19 +127,21 @@ echo "Adimission type:"
 zcat < ~/mimic/hosp/admissions.csv.gz | awk -F',' 'NR>1 {print $6}' | sort | uniq -c
 ```
 
+
+
 ```{bash}
 echo "Adimission location:"
-zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $8}' | sort | uniq -c
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F',' 'NR>1 {print $8}' | sort | uniq -c
 ```
 
 ```{bash}
 echo "Insurance:"
-zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $10}' | sort | uniq -c
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F',' 'NR>1 {print $10}' | sort | uniq -c
 ```
 
 ```{bash}
 echo "Race:"
-zcat < ~/mimic/hosp/admissions.csv.gz | awk -F, '{print $13}' | sort | uniq -c
+zcat < ~/mimic/hosp/admissions.csv.gz | awk -F',' 'NR>1 {print $13}' | sort | uniq -c
 ```
 
 
@@ -156,7 +161,13 @@ gzip -dk < ~/mimic/hosp/labevents.csv.gz > ~/labevents.csv
 ```{bash}
 time wc -l ~/labevents.csv
 ```
+**Trade-off between storage and speed for big data files:**
 
+Storage: Compressing files saves disk space, particularly beneficial for large datasets.
+
+Speed: Decompressing files requires additional CPU resources and time. Reading compressed files may incur some overhead, but the difference can be negligible.
+
+Trade-off: Depends on factors like file access frequency, storage capacity, computational resources, and the importance of data retrieval speed. Compression is beneficial when storage space is limited and occasional slowdown in file access is acceptable. Conversely, for scenarios where rapid data access is crucial and storage space is not a concern, uncompressed files may be preferable.
 ```{bash}
 rm ~/labevents.csv
 ```
@@ -176,7 +187,6 @@ Explain what `wget -nc` does. Do **not** put this text file `pg42671.txt` in Git
 
 Complete the following loop to tabulate the number of times each of the four characters is mentioned using Linux commands.
 ```{bash}
-
 for char in Elizabeth Jane Lydia Darcy
 do
   echo $char:
