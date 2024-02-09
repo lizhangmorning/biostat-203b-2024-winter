@@ -1,6 +1,6 @@
 *Li Zhang*
 
-### Overall Grade: 127/130 Nice!
+### Overall Grade: 130/130 Nice!
 
 ### Quality of report: 10/10
 
@@ -12,7 +12,7 @@
 
 -   Is the report clear (whole sentences, typos, grammar)? Do readers have a clear idea what's going on and how results are produced by just reading the report? Take some points off if the solutions are too succinct to grasp, or there are too many typos/grammar.
 
-### Completeness, correctness and efficiency of solution: 77/80
+### Completeness, correctness and efficiency of solution: 80/80
 
 -   Q1 (10/10)
 
@@ -24,13 +24,11 @@
 
     If PhysioNet credential is not complete, take 5 pts off.
 
--   Q3 (17/20)
+-   Q3 (20/20)
 
     Q3.1, if the gz files are ever decompressed or copied in the solutions, take 5 points off.
 
     For Q3.5 and Q3.6, should skip the header when finding the unique values of each variable. Take 5 points of if not done so.
-
-    **3.7 missing discussion of tradeoffs**
 
 -   Q4 (10/10)
 
