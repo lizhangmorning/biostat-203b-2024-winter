@@ -27,7 +27,9 @@ Display machine information for reproducibility:
 ```{r}
 sessionInfo()
 ```
-
+```{r}
+options(repos = "https://cloud.r-project.org")
+```
 Load necessary libraries (you can add more as needed).
 ```{r setup}
 library(arrow)
@@ -36,7 +38,6 @@ library(memuse)
 library(pryr)
 library(R.utils)
 library(tidyverse)
-install.packages("duckdb")
 library(duckdb)
 ```
 
@@ -185,6 +186,7 @@ In later exercises, we will only be interested in the following lab items: creat
 Display the first 10 lines of the new file `labevents_filtered.csv.gz`. How many lines are in this new file? How long does it take `read_csv` to ingest `labevents_filtered.csv.gz`?
 
 ```{bash}
+#| eval: false
 zcat < ~/mimic/hosp/labevents.csv.gz | 
 awk -F, 'BEGIN {OFS=","} {if ($5 == 50912 || $5 == 50971 || $5 == 50983 || $5 == 50902 || $5 == 50882 || $5 == 51221 || $5 == 51301 || $5 == 50931) print $2,$5,$7,$10}' | 
 gzip > labevents_filtered.csv.gz
@@ -218,7 +220,6 @@ Write a few sentences to explain what is Apache Arrow. Imagine you want to expla
 gzip -d -k ~/mimic/hosp/labevents.csv.gz
 ```
 
-
 ```{r}
 start_time <- Sys.time()
 labevents_dataset <- arrow::open_dataset("labevents.csv", format = "csv")
@@ -227,15 +228,16 @@ filtered_data <- labevents_dataset %>%
   select(subject_id, itemid, charttime, valuenum)
 end_time <- Sys.time()
 time_take <- end_time - start_time
-print(time_take)
-print(nrow(filtered_data))
+cat("Time taken to ingest, select, and filter:", time_take, "s\n")
+cat("Number of rows:", nrow(filtered_data), "\n")
 ```
-
-it takes 0.1 seconds to ingest `labevents.csv` using Apache Arrow.
 
 The number of rows and the first 10 rows of the result tibble match those in Q2.3.
 
-Apache Arrow is a cross-language development platform for in-memory data that specifies a standardized language-independent columnar memory format for flat and hierarchical data, organized for efficient analytic operations on modern hardware. It is designed to accelerate big data processing, and it is used in many big data systems such as Spark, Hadoop, and Pandas.
+Apache Arrow helps computers handle really big data faster and more smoothly.
+
+Imagine you have a huge amount of data, much more than your computer's memory can handle at once. Apache Arrow is like a smart system that helps break down this massive data into smaller, more manageable pieces. These smaller pieces are organized in a way that makes it easy for different programs or systems to work with them efficiently, like having a well-organized library where you can quickly find and borrow the books you need without searching through endless shelves.
+
 
 ### Q2.5 Compress `labevents.csv` to Parquet format and ingest/select/filter
 
@@ -248,20 +250,20 @@ Re-write the csv file `labevents.csv` in the binary Parquet format (Hint: [`arro
 Write a few sentences to explain what is the Parquet format. Imagine you want to explain it to a layman in an elevator.
 
 ```{r}
-arrow::write_dataset(filtered_data, "labevents.parquet")
+arrow::write_dataset(labevents_dataset, "labevents.parquet")
 
 parquet_size <- file.size("labevents.parquet")
 cat("Size of the Parquet file(s):", parquet_size, "bytes\n")
 
-start_time_parquet <- Sys.time()  
+start_time_parquet <- Sys.time() 
 lab_events_parquet <- arrow::open_dataset("labevents.parquet")
-
 filtered_lab_events_parquet <- lab_events_parquet %>%
-  dplyr::filter(itemid %in% c(50868, 50912, 50882))
-
+  dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>%
+  dplyr::select(subject_id, itemid, charttime, valuenum)
 end_time_parquet <- Sys.time()
 process_time_parquet <- end_time_parquet - start_time_parquet
 cat("Time taken to ingest, select, and filter Parquet file(s):", process_time_parquet, "s\n")
+
 num_rows_parquet <- nrow(filtered_lab_events_parquet)
 cat("Number of rows in Parquet file(s):", num_rows_parquet, "\n")
 ```
@@ -270,7 +272,9 @@ cat("Number of rows in Parquet file(s):", num_rows_parquet, "\n")
 head(filtered_lab_events_parquet, 10)
 ```
 
-The Parquet format is a columnar storage format that is optimized for reading and writing large datasets. It is designed to be efficient for both read and write operations, and it is particularly well-suited for use in big data systems such as Hadoop and Spark. The Parquet format is designed to be highly efficient for both read and write operations, and it is particularly well-suited for use in big data systems such as Hadoop and Spark.
+The Parquet format is a columnar storage format that is optimized for reading and writing large datasets. It is designed to be efficient for both read and write operations. 
+
+Think of Parquet as a clever way to store this data, almost like how a skilled carpenter organizes wood. Parquet breaks down your dataset into smaller, manageable 'chunks' and stores them in a highly efficient manner. It's like having special compartments in a storage room where each compartment holds a portion of your data neatly arranged for easy access. Because of its smart organization, Parquet not only saves space but also makes it lightning-fast to retrieve specific pieces of data when needed.
 
 
 ### Q2.6 DuckDB
@@ -293,7 +297,8 @@ lab_events_duckdb_table <- arrow::to_duckdb(lab_events_duckdb)
 
 # Select columns and filter rows based on itemid
 filtered_lab_events_duckdb <- lab_events_duckdb_table %>%
-  dplyr::filter(itemid %in% c(50868, 50912, 50882))
+  dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>%
+  dplyr::select(subject_id, itemid, charttime, valuenum)
 
 # Time measurement
 end_time_duckdb <- Sys.time()
@@ -309,7 +314,9 @@ cat("Number of rows in DuckDB table (converted to data frame):", num_rows_df, "\
 head(filtered_lab_events_duckdb, 10)
 ```
 
-DuckDB is an in-memory analytical database that is designed to be highly efficient for both read and write operations. It is particularly well-suited for use in big data systems such as Hadoop and Spark. DuckDB is designed to be highly efficient for both read and write operations, and it is particularly well-suited for use in big data systems such as Hadoop and Spark.
+DuckDB is an in-memory analytical database that is designed to be highly efficient for both read and write operations. 
+
+It's designed to be fast and efficient, capable of handling large datasets with ease. Imagine if you have a bunch of files scattered all over your desk, DuckDB helps neatly arrange them into folders and drawers, making it easier for you to find what you need without wasting time.So, in simple terms, DuckDB is a powerful tool that helps computers manage and process data efficiently.
 
 ## Q3. Ingest and filter `chartevents.csv.gz`
 
@@ -324,4 +331,38 @@ zcat < ~/mimic/icu/d_items.csv.gz | head -10
 In later exercises, we are interested in the vitals for ICU patients: heart rate (220045), mean non-invasive blood pressure (220181), systolic non-invasive blood pressure (220179), body temperature in Fahrenheit (223761), and respiratory rate (220210). Retrieve a subset of `chartevents.csv.gz` only containing these items, using the favorite method you learnt in Q2. 
 
 Document the steps and show code. Display the number of rows and the first 10 rows of the result tibble.
+
+```{bash}
+#| eval: false
+gzip -d -k ~/mimic/icu/chartevents.csv.gz > ./chartevents.csv
+```
+
+
+```{r}
+chartevents_dataset <- arrow::open_dataset("chartevents.csv", format = "csv")
+
+arrow::write_dataset(chartevents_dataset, "chartevents.parquet")
+
+
+parquet_size_chart <- file.size("chartevents.parquet")zu
+cat("Size of the Parquet file(s):", parquet_size_chart, "bytes\n")
+
+chartevents_parquet <- arrow::open_dataset("labevents.parquet")
+
+start_time_parquet <- Sys.time() 
+filtered_chartevents_parquet <- chartevents_parquet %>%
+  dplyr::filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>%
+  dplyr::select(subject_id, itemid, charttime, valuenum)
+end_time_parquet <- Sys.time()
+process_time_parquet <- end_time_parquet - start_time_parquet
+cat("Time taken to ingest, select, and filter Parquet file(s):", process_time_parquet, "s\n")
+
+num_rows_parquet <- nrow(filtered_chartevents_parquet)
+cat("Number of rows in Parquet file(s):", num_rows_parquet, "\n")
+```
+
+
+
+
+
 
