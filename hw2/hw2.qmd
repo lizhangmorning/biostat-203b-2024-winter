@@ -152,8 +152,7 @@ zcat < ~/mimic/hosp/labevents.csv.gz | head -10
 
 Try to ingest `labevents.csv.gz` using `read_csv`. What happens? If it takes more than 5 minutes on your computer, then abort the program and report your findings. 
 
-```{r}
-eval = FALSE
+```{r eval=FALSE}
 system.time({
   labevents <- read_csv("~/mimic/hosp/labevents.csv.gz")
 })
@@ -165,15 +164,17 @@ It takes more than 5 minutes to ingest `labevents.csv.gz` using `read_csv`.
 
 Try to ingest only columns `subject_id`, `itemid`, `charttime`, and `valuenum` in `labevents.csv.gz` using `read_csv`.  Does this solve the ingestion issue? (Hint: `col_select` argument in `read_csv`.)
 
-```{r}
+```{r eval=FALSE}
 library(readr)
 
-file_path <- "~/mimic/hosp/labevents.csv.gz"
-columns_to_select <- c("subject_id", "itemid", "charttime", "valuenum")
-labevents_data <- read_csv(file_path, col_select = cols_only(columns_to_select))
-str(labevents_data)
+system.time({
+  labevents_data <- read_csv(
+    "~/mimic/hosp/labevents.csv.gz", 
+    col_select = c(subject_id, itemid, charttime, valuenum))
+})
 ```
 
+This does not solve the ingestion issue. It still takes more than 5 minutes to ingest `labevents.csv.gz` using `read_csv` with selected columns.
 
 ### Q2.3 Ingest subset of `labevents.csv.gz`
 
@@ -341,25 +342,14 @@ gzip -d -c ~/mimic/icu/chartevents.csv.gz > /Users/zhangli/203b_hw_new/hw2/chart
 ```
 
 ```{r}
-chartevents_dataset <- arrow::open_dataset("chartevents.csv", format = "csv")
 
-arrow::write_dataset(chartevents_dataset, "chartevents.parquet")
-
-
-parquet_size_chart <- file.size("chartevents.parquet")zu
-cat("Size of the Parquet file(s):", parquet_size_chart, "bytes\n")
-
-
-start_time_parquet <- Sys.time() 
-filtered_chartevents_parquet <- chartevents_parquet %>%
+system.time({
+  data_chartevents <- arrow::open_dataset("chartevents.csv", format = "csv") %>%
   dplyr::filter(itemid %in% c(220045, 220181, 220179, 223761, 220210))
+})
 
-end_time_parquet <- Sys.time()
-process_time_parquet <- end_time_parquet - start_time_parquet
-cat("Time taken to ingest, select, and filter Parquet file(s):", process_time_parquet, "s\n")
-
-num_rows_parquet <- nrow(filtered_chartevents_parquet)
-cat("Number of rows in Parquet file(s):", num_rows_parquet, "\n")
+print(paste("Number of rows:", nrow(data_chartevents)))
+head(data_chartevents, 10)
 ```
 
 
