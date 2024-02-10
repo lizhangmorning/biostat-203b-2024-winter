@@ -173,6 +173,8 @@ columns_to_select <- c("subject_id", "itemid", "charttime", "valuenum")
 labevents_data <- read_csv(file_path, col_select = cols_only(columns_to_select))
 str(labevents_data)
 ```
+
+
 ### Q2.3 Ingest subset of `labevents.csv.gz`
 
 <p align="center">
@@ -217,7 +219,7 @@ Write a few sentences to explain what is Apache Arrow. Imagine you want to expla
 
 ```{bash}
 #| eval: false
-gzip -d -k ~/mimic/hosp/labevents.csv.gz
+gzip -d -c ~/mimic/hosp/labevents.csv.gz > /Users/zhangli/203b_hw_new/hw2/labevents.csv
 ```
 
 ```{r}
@@ -334,9 +336,9 @@ Document the steps and show code. Display the number of rows and the first 10 ro
 
 ```{bash}
 #| eval: false
-gzip -d -k ~/mimic/icu/chartevents.csv.gz > ./chartevents.csv
-```
+gzip -d -c ~/mimic/icu/chartevents.csv.gz > /Users/zhangli/203b_hw_new/hw2/chartevents.csv
 
+```
 
 ```{r}
 chartevents_dataset <- arrow::open_dataset("chartevents.csv", format = "csv")
@@ -347,12 +349,11 @@ arrow::write_dataset(chartevents_dataset, "chartevents.parquet")
 parquet_size_chart <- file.size("chartevents.parquet")zu
 cat("Size of the Parquet file(s):", parquet_size_chart, "bytes\n")
 
-chartevents_parquet <- arrow::open_dataset("labevents.parquet")
 
 start_time_parquet <- Sys.time() 
 filtered_chartevents_parquet <- chartevents_parquet %>%
-  dplyr::filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) %>%
-  dplyr::select(subject_id, itemid, charttime, valuenum)
+  dplyr::filter(itemid %in% c(220045, 220181, 220179, 223761, 220210))
+
 end_time_parquet <- Sys.time()
 process_time_parquet <- end_time_parquet - start_time_parquet
 cat("Time taken to ingest, select, and filter Parquet file(s):", process_time_parquet, "s\n")
