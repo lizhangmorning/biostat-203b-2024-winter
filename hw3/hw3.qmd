@@ -54,7 +54,7 @@ Hint: We need to pull information from data files `patients.csv.gz`, `admissions
 
 Patient of interest:
 ```{r}
-sid <- 10001217
+sid <- 10013310
 ```
 
 Import 'transfers.csv.gz' as a tibble `sid_adt`. 
@@ -119,16 +119,15 @@ d_icd_diagnoses <- read_csv("~/mimic/hosp/d_icd_diagnoses.csv.gz") |>
 
 ```{r}
 sid_diagnoses <- left_join(sid_diagnoses, d_icd_diagnoses, by = c("icd_code", "icd_version")) %>%
-  select(subject_id, hadm_id, seq_num, icd_code, icd_version, long_title)
+  select(subject_id, icd_code, icd_version, long_title)
 ```
 
 - Extract the top 3 diagnostics：
 
 ```{r}
 top_3_diagnoses <- sid_diagnoses %>%
-  arrange(seq_num) %>%
   slice_head(n = 3) %>%
-  pull(long_title) 
+  pull(long_title)
 
 subtitle_diagnoses <- paste(top_3_diagnoses, collapse = "\n")
 ```
@@ -149,33 +148,49 @@ sid_procedure$source <- "Procedure"
 
 all_data <- bind_rows(sid_adt, sid_lab, sid_procedure) 
 
-ggplot(all_data) +
-  
-  geom_segment(data = filter(all_data, source == "ADT" & eventtype != "discharge"),
+Q1_plot <- 
+  ggplot(all_data) +
+  geom_segment(data = filter(all_data, 
+                             source == "ADT" & eventtype != "discharge"),
                aes(x = intime, xend = outtime, 
                    y = "ADT", yend = "ADT", 
                    color = careunit, 
                    linewidth = str_detect(careunit, "(ICU|CCU)"))) +
   
-  guides(linewidth = FALSE) +  
+  guides(linewidth = FALSE, 
+         shape = guide_legend(nrow = 5, ncol = 2)) +  
 
-  geom_point(data = filter(all_data, source == "Lab"),
+  geom_point(data = filter(all_data, 
+                           source == "Lab"),
              aes(x = charttime, y = "Lab"), 
              shape = 3, size = 2) +
 
-  geom_point(data = filter(all_data, source == "Procedure"),
+  geom_point(data = filter(all_data, 
+                           source == "Procedure"),
              aes(x = chartdate, y = "Procedure", 
                  shape = long_title),
+             position = position_jitter(height = 0.2),
              size = 3) +
   
   labs(x = "", y = "", 
-       title = str_c("Patient ", sid, ", ", sid_patient$gender, ", ", sid_patient$anchor_age,"years old, ",tolower(sid_admissions$race)),
+       title = str_c("Patient ", sid, ", ", sid_patient$gender, ", ", 
+                     sid_patient$anchor_age," years old, ",
+                     tolower(sid_admissions$race)),
        subtitle = subtitle_diagnoses,
        shape = "Procedure", color = "Care Unit") +
+  
   scale_y_discrete(limits = c("Procedure", "Lab", "ADT")) +
-  theme(legend.position = "bottom", legend.box = "vertical")
+  scale_shape_manual(values = c(1, 2, 3, 4, 5, 6, 7, 8, 9)) +
+  theme(legend.position = "bottom", legend.box = "vertical", 
+        legend.key.size = unit(0.5, "cm"))
+
+ggsave("q1_plot.png", plot = Q1_plot, 
+       width = 15, height = 6, dpi = 300)
 ```
 
+Here is my plot:
+
+![](q1_plot.png)
 
 
 ### Q1.2 ICU stays
