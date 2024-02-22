@@ -335,23 +335,23 @@ In later exercises, we are interested in the vitals for ICU patients: heart rate
 
 Document the steps and show code. Display the number of rows and the first 10 rows of the result tibble.
 
-```{bash}
-#| eval: false
-gzip -d -c ~/mimic/icu/chartevents.csv.gz > /Users/zhangli/203b_hw_new/hw2/chartevents.csv
 
-```
-
+- Parquet format
 ```{r}
+library(data.table)
+library(arrow)
 
-system.time({
-  data_chartevents <- arrow::open_dataset("chartevents.csv", format = "csv") %>%
-  dplyr::filter(itemid %in% c(220045, 220181, 220179, 223761, 220210))
-})
+data_chartevents <- arrow::open_dataset("~/mimic/icu/chartevents.csv.gz", format = "csv") 
+arrow::write_dataset(data_chartevents, "chartevents.parquet")
 
-print(paste("Number of rows:", nrow(data_chartevents)))
-head(data_chartevents, 10)
+data_chartevents_parquet <- arrow::open_dataset("chartevents.parquet")
+filtered_data_chartevents_parquet <- data_chartevents_parquet %>%
+  dplyr::filter(itemid %in% c(220045, 220181, 220179, 223761, 220210)) 
+
+print(paste("Number of rows:", 
+            nrow(filtered_data_chartevents_parquet)))
+head(filtered_data_chartevents_parquet, 10)
 ```
-
 
 
 
