@@ -54,7 +54,7 @@ Hint: We need to pull information from data files `patients.csv.gz`, `admissions
 
 Patient of interest:
 ```{r}
-sid <- 10001217
+sid <- 10013310
 ```
 
 Import 'transfers.csv.gz' as a tibble `sid_adt`. 
@@ -64,9 +64,9 @@ sid_adt <- read_csv("~/mimic/hosp/transfers.csv.gz") |>
   print(width = Inf)
 ```
 
-Make a symbolic link to the Parquet folder `labevents.parquet`:
-```{bash}
-ln -s ~/203b_hw_new/hw2/labevents.parquet ~/203b_hw_new/hw3/labevents.parquet
+```{r eval = FALSE}
+data_labevents <- arrow::open_dataset("~/mimic/hosp/labevents.csv.gz", format = "csv") 
+arrow::write_dataset(data_labevents, "labevents.parquet")
 ```
 
 
@@ -156,42 +156,33 @@ all_data <- bind_rows(sid_adt, sid_lab, sid_procedure)
 
 Q1_plot <- 
   ggplot(all_data) +
-  geom_segment(data = filter(all_data, 
-                             source == "ADT" & eventtype != "discharge"),
+  geom_segment(data = filter(all_data, source == "ADT" & eventtype != "discharge"),
                aes(x = intime, xend = outtime, 
                    y = "ADT", yend = "ADT", 
                    color = careunit, 
                    linewidth = str_detect(careunit, "(ICU|CCU)"))) +
   
-  guides(linewidth = FALSE, 
-         shape = guide_legend(nrow = 5, ncol = 2)) +  
+  guides(linewidth = "none", shape = guide_legend(nrow = 5, ncol = 2)) +  
 
-  geom_point(data = filter(all_data, 
-                           source == "Lab"),
+  geom_point(data = filter(all_data, source == "Lab"),
              aes(x = charttime, y = "Lab"), 
              shape = 3, size = 2) +
 
-  geom_point(data = filter(all_data, 
-                           source == "Procedure"),
+  geom_point(data = filter(all_data, source == "Procedure"),
              aes(x = chartdate, y = "Procedure", 
                  shape = long_title),
              position = position_jitter(height = 0.2),
              size = 3) +
   
   labs(x = "", y = "", 
-       title = str_c("Patient ", sid, ", ", sid_patient$gender, ", ", 
-                     sid_patient$anchor_age," years old, ",
-                     tolower(sid_admissions$race)),
+       title = str_c("Patient ", sid, ", ", sid_patient$gender, ", ", sid_patient$anchor_age," years old, ",tolower(sid_admissions$race)),
        subtitle = subtitle_diagnoses,
        shape = "Procedure", color = "Care Unit") +
-  
   scale_y_discrete(limits = c("Procedure", "Lab", "ADT")) +
   scale_shape_manual(values = c(1, 2, 3, 4, 5, 6, 7, 8, 9)) +
-  theme(legend.position = "bottom", legend.box = "vertical", 
-        legend.key.size = unit(0.5, "cm"))
+  theme(legend.position = "bottom", legend.box = "vertical", legend.key.size = unit(0.5, "cm"))
 
-ggsave("q1_plot.png", plot = Q1_plot, 
-       width = 15, height = 6, dpi = 300)
+ggsave("q1_plot.png", plot = Q1_plot, width = 15, height = 6, dpi = 300)
 ```
 
 Here is my plot:
@@ -239,13 +230,13 @@ d_items <- read_csv("~/mimic/icu/d_items.csv.gz") |>
 
 
 ```{r}
-sid_chart <- left_join(sid_chart_filtered, d_items, by = c("itemid" = "itemid")) %>%
+sid_chart <- left_join(sid_chart, d_items, by = c("itemid" = "itemid")) %>%
   select(subject_id, stay_id, charttime, itemid, abbreviation, valuenum)
 ```
 
 ```{r}
 Q2_plot <- ggplot(
-  sid_chart_filtered,
+  sid_chart,
   aes(
     x = charttime, y = valuenum,
     color = abbreviation, group = abbreviation
@@ -254,8 +245,10 @@ Q2_plot <- ggplot(
   geom_line() +
   geom_point() +
   facet_grid(abbreviation ~ stay_id, scales = "free") +
-  labs(x = "", y = "", color = "Type of Vital") +
+  labs(x = "", y = "", color = "Type of Vital",
+       title = str_c("Patient ", sid, " ICU stays - Vitals")) +
   guides(color = FALSE) 
+
 
 ggsave("q2_plot.png", plot = Q2_plot,
        width = 15, height = 6, dpi = 300)
@@ -450,7 +443,7 @@ ggplot(patients_tble, aes(x = anchor_age)) +
        y = "Frequency") +
   scale_x_continuous(breaks = seq(0, 100, by = 10))
 ```
-
+There is a peak at younger adults, and a decline as the age increases.
 
 ## Q5. Lab results
 
@@ -476,8 +469,13 @@ Hint: Use the Parquet format you generated in Homework 2. For reproducibility, m
 labevents_tble <- arrow::open_dataset("labevents.parquet") %>%
   dplyr::filter(subject_id %in% icustays_tble$subject_id) %>%
   dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>%
-  select(subject_id, hadm_id, itemid, storetime, valuenum) %>%
-  as_tibble() %>%
+  select(subject_id, itemid, storetime, valuenum) %>%
+  collect() %>%
+  left_join(icustays_tble, by = "subject_id") %>%
+  
+  
+  
+  
   print(width = Inf)
 ```
 
@@ -539,6 +537,13 @@ Let us create a tibble `mimic_icu_cohort` for all ICU stays, where rows are all 
 The final `mimic_icu_cohort` should have one row per ICU stay and columns for each variable.
 
 ![](mimic_icu_cohort.png)
+
+```{r}
+intimeage = year(intime) - anchor_year + anchor_age
+```
+
+
+
 
 ## Q8. Exploratory data analysis (EDA)
 
