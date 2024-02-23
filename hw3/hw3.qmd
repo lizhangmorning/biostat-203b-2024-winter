@@ -54,7 +54,7 @@ Hint: We need to pull information from data files `patients.csv.gz`, `admissions
 
 Patient of interest:
 ```{r}
-sid <- 10013310
+sid <- 10001217
 ```
 
 Import 'transfers.csv.gz' as a tibble `sid_adt`. 
@@ -63,6 +63,12 @@ sid_adt <- read_csv("~/mimic/hosp/transfers.csv.gz") |>
   filter(subject_id == sid) |>
   print(width = Inf)
 ```
+
+Make a symbolic link to the Parquet folder `labevents.parquet`:
+```{bash}
+ln -s ~/203b_hw_new/hw2/labevents.parquet ~/203b_hw_new/hw3/labevents.parquet
+```
+
 
 Import 'labevents.parquet' as a tibble `sid_lab`. 
 ```{r}
@@ -201,6 +207,64 @@ ICU stays are a subset of ADT history. This figure shows the vitals of the patie
 
 Do a similar visualization for the patient `10013310`.
 
+- import 'icustays.csv.gz' as a tibble `sid_icustays`. 
+
+```{r}
+sid_icustays <- read_csv("~/mimic/icu/icustays.csv.gz") |>
+  filter(subject_id == sid) |>
+  print(width = Inf)
+```
+- Import 'chartevents.parquet' as a tibble `sid_chart`. 
+
+```{r eval = FALSE}
+data_chartevents <- arrow::open_dataset("~/mimic/icu/chartevents.csv.gz", format = "csv") 
+arrow::write_dataset(data_chartevents, "chartevents.parquet")
+```
+
+```{r}
+sid_chart <- arrow::open_dataset("chartevents.parquet") %>%
+  dplyr::filter(subject_id == sid &
+    itemid %in% c(220045, 220179, 220180, 223761, 220210)) %>%
+  as_tibble() %>%
+  print(width = Inf)
+```
+
+
+import 'd_items.csv.gz' as a tibble `d_items`. 
+
+```{r}
+d_items <- read_csv("~/mimic/icu/d_items.csv.gz") |>
+  print(width = Inf)
+```
+
+
+```{r}
+sid_chart <- left_join(sid_chart_filtered, d_items, by = c("itemid" = "itemid")) %>%
+  select(subject_id, stay_id, charttime, itemid, abbreviation, valuenum)
+```
+
+```{r}
+Q2_plot <- ggplot(
+  sid_chart_filtered,
+  aes(
+    x = charttime, y = valuenum,
+    color = abbreviation, group = abbreviation
+  )
+) +
+  geom_line() +
+  geom_point() +
+  facet_grid(abbreviation ~ stay_id, scales = "free") +
+  labs(x = "", y = "", color = "Type of Vital") +
+  guides(color = FALSE) 
+
+ggsave("q2_plot.png", plot = Q2_plot,
+       width = 15, height = 6, dpi = 300)
+```
+
+Here is my plot:
+
+![](q2_plot.png)
+
 ## Q2. ICU stays
 
 `icustays.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/icu/icustays/>) contains data about Intensive Care Units (ICU) stays. The first 10 lines are
@@ -212,9 +276,40 @@ zcat < ~/mimic/icu/icustays.csv.gz | head
 
 Import `icustays.csv.gz` as a tibble `icustays_tble`. 
 
+```{r}
+icustays_tble <- read_csv("~/mimic/icu/icustays.csv.gz") |>
+  print(width = Inf)
+```
+
 ### Q2.2 Summary and visualization
 
 How many unique `subject_id`? Can a `subject_id` have multiple ICU stays? Summarize the number of ICU stays per `subject_id` by graphs. 
+
+```{r}
+icustays_tble %>%
+  distinct(subject_id) %>%
+  count()
+```
+There are 50920 unique `subject_id`.
+
+A `subject_id` can have multiple ICU stays:
+```{r}
+icu_stays_summary <- icustays_tble %>%
+  group_by(subject_id) %>%
+  summarise(num_icu_stays = n())
+icu_stays_summary
+```
+
+
+```{r}
+icu_stays_summary %>%
+  ggplot(aes(x = num_icu_stays)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  scale_x_continuous(breaks = seq(0, 10, by = 1)) +
+  labs(title = "Number of ICU Stays per Patient",
+       x = "Number of ICU Stays",
+       y = "Count")
+```
 
 ## Q3. `admissions` data
 
@@ -227,6 +322,15 @@ zcat < ~/mimic/hosp/admissions.csv.gz | head
 
 Import `admissions.csv.gz` as a tibble `admissions_tble`.
 
+```{r}
+admissions_tble <- read_csv("~/mimic/hosp/admissions.csv.gz") |>
+  print(width = Inf)
+
+ad_summary <- admissions_tble %>%
+  group_by(subject_id) %>%
+  summarise(num_hadm_id = n())
+```
+
 ### Q3.2 Summary and visualization
 
 Summarize the following information by graphics and explain any patterns you see.
@@ -234,7 +338,69 @@ Summarize the following information by graphics and explain any patterns you see
 - number of admissions per patient  
 - admission hour (anything unusual?)  
 - admission minute (anything unusual?)  
-- length of hospital stay (from admission to discharge) (anything unusual?)  
+- length of hospital stay (from admission to discharge) (anything unusual?) 
+
+```{r}
+admissions_tble %>%
+  group_by(subject_id) %>%
+  summarise(num_hadm_id  = n()) %>%
+  ggplot(aes(x = num_hadm_id )) +
+  geom_bar(fill = "skyblue", color = "black") +
+  scale_x_continuous(breaks = seq(0, 250, by = 10)) +
+  labs(title = "Number of Admissions per Patient",
+       x = "Number of Admissions",
+       y = "Count")
+```
+```{r}
+mean(ad_summary$num_hadm_id)
+median(ad_summary$num_hadm_id)
+sum(ad_summary$num_hadm_id == 1) / nrow(ad_summary)
+```
+Over a half of the patients have only one admission, but the outliers have more than 100 or even 200 admissions.
+
+
+- admission hour
+```{r}
+admissions_tble %>%
+  ggplot(aes(x = hour(admittime))) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Admission Hour",
+       x = "Hour",
+       y = "Count")
+```
+Admission hours exhibit a predominant concentration during the afternoon and evening.
+
+There is a noticeable decline in admissions during the early morning hours.
+
+Despite this trend, a notable peak is observed at 7 a.m.
+
+However, it is important to note that this peak at 7 a.m. remains smaller in comparison to the peak observed during the evening hours.
+
+- admission minute 
+```{r}
+admissions_tble %>%
+  ggplot(aes(x = minute(admittime))) +
+  geom_bar(fill = "skyblue", color = "black") +
+  labs(title = "Admission Minute",
+       x = "Minute",
+       y = "Count")
+```
+Admission minutes exhibit a peak every 15 minutes and the peaks are decreasing as the minute increases.
+
+Other miuntes are relatively evenly distributed.
+
+- length of hospital stay (from admission to discharge)
+```{r}
+admissions_tble %>%
+  mutate(los = as.numeric(difftime(dischtime, admittime, units = "days"))) %>%
+  ggplot(aes(x = los)) +
+  geom_bar(fill = "skyblue", color = "black") +
+  scale_x_continuous(breaks = seq(0, 250, by = 10)) +
+  labs(title = "Length of Hospital Stay",
+       x = "Length of Hospital Stay (days)",
+       y = "Count") 
+```
+
 
 According to the [MIMIC-IV documentation](https://mimic.mit.edu/docs/iv/about/concepts/#date-shifting), 
 
@@ -251,9 +417,40 @@ zcat < ~/mimic/hosp/patients.csv.gz | head
 
 Import `patients.csv.gz` (<https://mimic.mit.edu/docs/iv/modules/hosp/patients/>) as a tibble `patients_tble`.
 
+```{r}
+patients_tble <- read_csv("~/mimic/hosp/patients.csv.gz") |>
+  print(width = Inf)
+```
 ### Q4.2 Summary and visualization
 
 Summarize variables `gender` and `anchor_age` by graphics, and explain any patterns you see.
+
+```{r}
+# Summarize gender
+gender_summary <- patients_tble %>%
+  group_by(gender) %>%
+  summarise(count = n())
+
+# Bar plot for gender
+ggplot(gender_summary, aes(x = gender, y = count)) +
+  geom_bar(stat = "identity", fill = "skyblue", color = "black") +
+  labs(title = "Gender Distribution",
+       x = "Gender",
+       y = "Count")
+```
+Females are slightly more than hald of the patients.
+
+
+```{r}
+# Histogram for anchor age
+ggplot(patients_tble, aes(x = anchor_age)) +
+  geom_histogram(binwidth = 5, fill = "skyblue", color = "black") +
+  labs(title = "Histogram of Anchor Age",
+       x = "Anchor Age",
+       y = "Frequency") +
+  scale_x_continuous(breaks = seq(0, 100, by = 10))
+```
+
 
 ## Q5. Lab results
 
@@ -271,8 +468,45 @@ We are interested in the lab measurements of creatinine (50912), potassium (5097
 
 ![](labevents_tble.png)
 
-
 Hint: Use the Parquet format you generated in Homework 2. For reproducibility, make `labevents_pq` folder available at the current working directory `hw3`, for example, by a symbolic link.
+
+
+```{r}
+
+labevents_tble <- arrow::open_dataset("labevents.parquet") %>%
+  dplyr::filter(subject_id %in% icustays_tble$subject_id) %>%
+  dplyr::filter(itemid %in% c(50912, 50971, 50983, 50902, 50882, 51221, 51301, 50931)) %>%
+  select(subject_id, hadm_id, itemid, storetime, valuenum) %>%
+  as_tibble() %>%
+  print(width = Inf)
+```
+
+
+```{r}
+icustays_tble_Q5 <- icustays_tble %>%
+  select(subject_id, stay_id, hadm_id, intime) %>%
+  print(width = Inf)
+```
+
+
+```{r}
+labevents_tble <- labevents_tble %>%
+  
+```
+
+```{r}
+```
+
+```{r}
+  mutate(timecheck = ifelse(charttime <= intime, 1, 0)) %>%
+  filter(timecheck == 1) %>%
+  print(width = Inf)
+
+```
+
+
+
+
 
 ## Q6. Vitals from charted events
 
