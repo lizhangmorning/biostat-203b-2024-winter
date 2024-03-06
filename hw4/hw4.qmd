@@ -102,75 +102,68 @@ d_labitems <- tbl(con_bq, "d_labitems") |>
 
 
 ```{r}
-# labevents_tble <- tbl(con_bq, "labevents")|>
-#   
+labevents_tble <- tbl(con_bq, "labevents")|>
+
 #   filter(subject_id %in% icustays_tble$subject_id) |>
-#   filter(itemid %in% c(
-#     50912, 50971, 50983, 50902,
-#     50882, 51221, 51301, 50931
-#   )) |>
+  filter(itemid %in% c(
+    50912, 50971, 50983, 50902,
+    50882, 51221, 51301, 50931
+  )) |>
 #   
-#   select(subject_id, itemid, storetime, valuenum) |>
-#   left_join(icustays_tble, by = "subject_id") |>
+  select(subject_id, itemid, storetime, valuenum) |>
+  right_join( select(icustays_tble,subject_id, stay_id, intime),
+    by = "subject_id")  |>
 #   select(subject_id, stay_id, itemid, valuenum, storetime, intime) |>
-#   filter(storetime < intime) |>
-# 
-#   group_by(subject_id, stay_id, itemid) |>
-#  
-#   slice_max(order_by = storetime) |>
-#   ungroup() |>
-#   select(subject_id, stay_id, itemid, valuenum) |>
-#   left_join(d_labitems, by = "itemid") |>
-#   select(subject_id, stay_id, label, valuenum) |>
-#   #pivot_wider(names_from = label, values_from = valuenum) |>
-#   print(width = Inf)
+  filter(storetime < intime) |>
 
-```
-```{r}
-chartevents_tble <- tbl(con_bq, "chartevents") |>
-  filter(itemid %in% c(220045, 220179, 220180, 223761, 220210)) |>
-  select(stay_id, charttime, itemid, valuenum) |>
-  right_join(
-    select(icustays_tble,subject_id, stay_id, intime),
-    by = "stay_id") |>
-  filter(charttime >= intime) |>
   group_by(subject_id, stay_id, itemid) |>
-  slice_min(order_by = charttime) |>
+
+  slice_max(order_by = storetime) |>
   ungroup() |>
-  mutate(itemid =  case_when(
-    itemid == 220045 ~ "heart_rate",
-    itemid == 220179 ~ "non_invasive_blood_pressure_systolic",
-    itemid == 220180 ~ "non_invasive_blood_pressure_diastolic",
-    itemid == 220210 ~ "respiratory_rate",
-    itemid == 223761 ~ "temperature_fahrenheit")) |>
   select(subject_id, stay_id, itemid, valuenum) |>
-  pivot_wider(names_from = itemid, values_from = valuenum, values_fn = mean) |>
+  left_join(d_labitems, by = "itemid") |>
+  select(subject_id, stay_id, label, valuenum) |>
+  pivot_wider(names_from = label, values_from = valuenum) |>
   print(width = Inf)
-```
-```{r}
-# chartevents_tble <- tbl(con_bq, "chartevents") %>%
-#   filter(itemid %in% c(220045, 220179, 220180, 223761, 220210)) %>%
-#   select(stay_id, charttime, itemid, valuenum) %>%
-#   collect() %>%
-#   left_join(icustays_tble %>% 
-#               select(subject_id, stay_id, intime), 
-#             by = "stay_id") %>%
-#   filter(charttime >= intime) %>%
-#   group_by(subject_id, stay_id, itemid) %>%
-#   slice_min(order_by = charttime) %>%
-#   ungroup() %>%
-#   select(subject_id, stay_id, itemid, valuenum) %>%
-#   left_join(d_items, by = "itemid") %>%
-#   select(subject_id, stay_id, label, valuenum) %>%
-#   pivot_wider(names_from = label, values_from = valuenum, values_fn = mean) %>%
-#   print(width = Inf)
+
 ```
 
-###{r} Q1.6 `chartevents` data
+
+
+### Q1.6 `chartevents` data
 
 Connect to `chartevents` table and retrieve a subset that only contain subjects who appear in `icustays_tble` and the chart events listed in HW3. Only keep the first chart events during ICU stay and pivot chart events to become variables/columns. Write all steps in _one_ chain of pipes.
+
+Connect to the `d_items` table.
 ```{r}
-# chartevents_tble <- 
+d_items <- tbl(con_bq, "d_items") |>
+   print(width = Inf)
+```
+
+
+
+```{r}
+chartevents_tble <- tbl(con_bq, "chartevents") %>%
+  filter(itemid %in% c(220045, 220179, 220180,
+                       223761, 220210)) %>%
+  select(stay_id, charttime, itemid, valuenum) %>%
+  right_join(select(icustays_tble, subject_id, 
+                    stay_id, intime),
+             by = "stay_id"
+  ) %>%
+  filter(charttime >= intime) %>%
+  group_by(subject_id, stay_id, itemid) %>%
+  slice_min(order_by = charttime) %>%
+  ungroup() %>%
+  select(subject_id, stay_id, 
+         itemid, valuenum) %>%
+  left_join(d_items, by = "itemid") %>%
+  select(subject_id, stay_id, 
+         label, valuenum) %>%
+  pivot_wider(names_from = label, 
+              values_from = valuenum, 
+              values_fn = mean) %>%
+  print(width = Inf)
 ```
 
 ### Q1.7 Put things together
@@ -178,8 +171,24 @@ Connect to `chartevents` table and retrieve a subset that only contain subjects 
 This step is similar to Q7 of HW3. Using _one_ chain of pipes `|>` to perform following data wrangling steps: (i) start with the `icustays_tble`, (ii) merge in admissions and patients tables, (iii) keep adults only (age at ICU intime >= 18), (iv) merge in the labevents and chartevents tables, (v) `collect` the tibble.
 
 ```{r}
-# # TODO
-# mimic_icu_cohort <- 
+mimic_icu_cohort <-
+  icustays_tble %>%
+  left_join(admissions_tble,
+    by = c("subject_id", "hadm_id")
+  ) %>%
+  left_join(patients_tble, by = "subject_id") %>%
+  mutate(
+    intimeage = year(intime) - anchor_year + anchor_age
+    ) %>%
+  filter(intimeage >= 18) %>%
+  left_join(labevents_tble,
+    by = c("subject_id", "stay_id")
+  ) %>%
+  left_join(chartevents_tble,
+    by = c("subject_id", "stay_id")
+  ) %>%
+  collect() %>%
+  print(width = Inf)
 ```
 
 ### Q1.8 Preprocessing

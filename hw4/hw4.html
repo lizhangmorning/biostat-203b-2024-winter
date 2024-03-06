@@ -3083,6 +3083,7 @@ vertical-align: -.125em;
   <li><a href="#q1.3-admissions-data" id="toc-q1.3-admissions-data" class="nav-link" data-scroll-target="#q1.3-admissions-data">Q1.3 <code>admissions</code> data</a></li>
   <li><a href="#q1.4-patients-data" id="toc-q1.4-patients-data" class="nav-link" data-scroll-target="#q1.4-patients-data">Q1.4 <code>patients</code> data</a></li>
   <li><a href="#q1.5-labevents-data" id="toc-q1.5-labevents-data" class="nav-link" data-scroll-target="#q1.5-labevents-data">Q1.5 <code>labevents</code> data</a></li>
+  <li><a href="#q1.6-chartevents-data" id="toc-q1.6-chartevents-data" class="nav-link" data-scroll-target="#q1.6-chartevents-data">Q1.6 <code>chartevents</code> data</a></li>
   <li><a href="#q1.7-put-things-together" id="toc-q1.7-put-things-together" class="nav-link" data-scroll-target="#q1.7-put-things-together">Q1.7 Put things together</a></li>
   <li><a href="#q1.8-preprocessing" id="toc-q1.8-preprocessing" class="nav-link" data-scroll-target="#q1.8-preprocessing">Q1.8 Preprocessing</a></li>
   <li><a href="#q1.9-save-the-final-tibble" id="toc-q1.9-save-the-final-tibble" class="nav-link" data-scroll-target="#q1.9-save-the-final-tibble">Q1.9 Save the final tibble</a></li>
@@ -3153,8 +3154,8 @@ loaded via a namespace (and not attached):
 <div class="cell">
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code>Totalram:   8.000 GiB 
-Freeram:   41.891 MiB </code></pre>
+<pre><code>Totalram:    8.000 GiB 
+Freeram:   115.469 MiB </code></pre>
 </div>
 </div>
 <p>Load database libraries and the tidyverse frontend:</p>
@@ -3406,49 +3407,131 @@ FROM `icustays`
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a><span class="co"># labevents_tble &lt;- tbl(con_bq, &quot;labevents&quot;)|&gt;</span></span>
-<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   </span></span>
+<div class="sourceCode cell-code" id="cb22"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>labevents_tble <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con_bq, <span class="st">&quot;labevents&quot;</span>)<span class="sc">|&gt;</span></span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(subject_id %in% icustays_tble$subject_id) |&gt;</span></span>
-<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(itemid %in% c(</span></span>
-<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a><span class="co">#     50912, 50971, 50983, 50902,</span></span>
-<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a><span class="co">#     50882, 51221, 51301, 50931</span></span>
-<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   )) |&gt;</span></span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a>    <span class="dv">50912</span>, <span class="dv">50971</span>, <span class="dv">50983</span>, <span class="dv">50902</span>,</span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>    <span class="dv">50882</span>, <span class="dv">51221</span>, <span class="dv">51301</span>, <span class="dv">50931</span></span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>  )) <span class="sc">|&gt;</span></span>
 <span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   </span></span>
-<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(subject_id, itemid, storetime, valuenum) |&gt;</span></span>
-<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   left_join(icustays_tble, by = &quot;subject_id&quot;) |&gt;</span></span>
-<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(subject_id, stay_id, itemid, valuenum, storetime, intime) |&gt;</span></span>
-<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(storetime &lt; intime) |&gt;</span></span>
-<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a><span class="co"># </span></span>
-<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a><span class="co">#   group_by(subject_id, stay_id, itemid) |&gt;</span></span>
-<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a><span class="co">#  </span></span>
-<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   slice_max(order_by = storetime) |&gt;</span></span>
-<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="co">#   ungroup() |&gt;</span></span>
-<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(subject_id, stay_id, itemid, valuenum) |&gt;</span></span>
-<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a><span class="co">#   left_join(d_labitems, by = &quot;itemid&quot;) |&gt;</span></span>
-<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(subject_id, stay_id, label, valuenum) |&gt;</span></span>
-<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a><span class="co">#   #pivot_wider(names_from = label, values_from = valuenum) |&gt;</span></span>
-<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a><span class="co">#   print(width = Inf)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, itemid, storetime, valuenum) <span class="sc">|&gt;</span></span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">right_join</span>( <span class="fu">select</span>(icustays_tble,subject_id, stay_id, intime),</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">&quot;subject_id&quot;</span>)  <span class="sc">|&gt;</span></span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(subject_id, stay_id, itemid, valuenum, storetime, intime) |&gt;</span></span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(storetime <span class="sc">&lt;</span> intime) <span class="sc">|&gt;</span></span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">|&gt;</span></span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_max</span>(<span class="at">order_by =</span> storetime) <span class="sc">|&gt;</span></span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
+<span id="cb22-19"><a href="#cb22-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, itemid, valuenum) <span class="sc">|&gt;</span></span>
+<span id="cb22-20"><a href="#cb22-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(d_labitems, <span class="at">by =</span> <span class="st">&quot;itemid&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb22-21"><a href="#cb22-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, label, valuenum) <span class="sc">|&gt;</span></span>
+<span id="cb22-22"><a href="#cb22-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> label, <span class="at">values_from =</span> valuenum) <span class="sc">|&gt;</span></span>
+<span id="cb22-23"><a href="#cb22-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Source:   SQL [?? x 10]
+# Database: BigQueryConnection
+   subject_id  stay_id Sodium `White Blood Cells` Creatinine Hematocrit Glucose
+        &lt;int&gt;    &lt;int&gt;  &lt;dbl&gt;               &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;
+ 1   10011365 37153661    135                10.9        0.7       43       170
+ 2   10020640 30849778    164                20.4        0.7       37.1     352
+ 3   10034317 36228864    141                12.6        1         29.6     141
+ 4   10160622 39565767    131                17.1        0.8       34.5     196
+ 5   10174859 36361919    140                 5.5        1.1       48.4      96
+ 6   10205143 38428647    138                 4.9        1.5       34.6     104
+ 7   10234658 34565014    142                 4.2        1.1       41.2     106
+ 8   10288778 30339185    136                16.8        0.8       35.8      90
+ 9   10300586 31383472    145                 5.5        0.9       26.6     153
+10   10320037 39280591    139                 7          0.8       39       118
+   Chloride Potassium Bicarbonate
+      &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
+ 1       97       4.5          20
+ 2      132       4.6          19
+ 3      102       5.2          23
+ 4       83       4.4          38
+ 5       99       5.5          22
+ 6       99       4.3          33
+ 7      105       3.6          26
+ 8       99       3.5          28
+ 9      104       4.5          32
+10      114       3.5          17
+# ℹ more rows</code></pre>
+</div>
+</div>
+</section>
+<section id="q1.6-chartevents-data" class="level3">
+<h3 class="anchored" data-anchor-id="q1.6-chartevents-data">Q1.6 <code>chartevents</code> data</h3>
+<p>Connect to <code>chartevents</code> table and retrieve a subset that only contain subjects who appear in <code>icustays_tble</code> and the chart events listed in HW3. Only keep the first chart events during ICU stay and pivot chart events to become variables/columns. Write all steps in <em>one</em> chain of pipes.</p>
+<p>Connect to the <code>d_items</code> table.</p>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb24"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb24-1"><a href="#cb24-1" aria-hidden="true" tabindex="-1"></a>d_items <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con_bq, <span class="st">&quot;d_items&quot;</span>) <span class="sc">|&gt;</span></span>
+<span id="cb24-2"><a href="#cb24-2" aria-hidden="true" tabindex="-1"></a>   <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># Source:   table&lt;d_items&gt; [?? x 9]
+# Database: BigQueryConnection
+   itemid label                            abbreviation                    
+    &lt;int&gt; &lt;chr&gt;                            &lt;chr&gt;                           
+ 1 220120 Intra Aortic Ballon Pump Setting Intra Aortic Ballon Pump Setting
+ 2 223933 Heat Sounds                      Heat Sounds                     
+ 3 223934 Dorsal PedPulse R                Dorsal PedPulse R               
+ 4 223935 PostTib. Pulses R                PostTib Pulses R                
+ 5 223936 Radial Pulse R                   Radial Pulse R                  
+ 6 223938 Ulnar Pulse R                    Ulnar Pulse R                   
+ 7 223939 Brachial Pulse R                 Brachial Pulse R                
+ 8 223940 Femoral Pulse R                  Femoral Pulse R                 
+ 9 223941 Popliteal Pulse R                Popliteal Pulse R               
+10 223943 Dorsal PedPulse L                Dorsal PedPulse L               
+   linksto     category                unitname param_type lownormalvalue
+   &lt;chr&gt;       &lt;chr&gt;                   &lt;chr&gt;    &lt;chr&gt;               &lt;dbl&gt;
+ 1 chartevents IABP                    &lt;NA&gt;     Text                   NA
+ 2 chartevents Cardiovascular (Pulses) &lt;NA&gt;     Text                   NA
+ 3 chartevents Cardiovascular (Pulses) &lt;NA&gt;     Text                   NA
+ 4 chartevents Cardiovascular (Pulses) &lt;NA&gt;     Text                   NA
+ 5 chartevents Cardiovascular (Pulses) &lt;NA&gt;     Text                   NA
+ 6 chartevents Cardiovascular (Pulses) &lt;NA&gt;     Text                   NA
+ 7 chartevents Cardiovascular (Pulses) &lt;NA&gt;     Text                   NA
+ 8 chartevents Cardiovascular (Pulses) &lt;NA&gt;     Text                   NA
+ 9 chartevents Cardiovascular (Pulses) &lt;NA&gt;     Text                   NA
+10 chartevents Cardiovascular (Pulses) &lt;NA&gt;     Text                   NA
+   highnormalvalue
+             &lt;dbl&gt;
+ 1              NA
+ 2              NA
+ 3              NA
+ 4              NA
+ 5              NA
+ 6              NA
+ 7              NA
+ 8              NA
+ 9              NA
+10              NA
+# ℹ more rows</code></pre>
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb23"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb23-1"><a href="#cb23-1" aria-hidden="true" tabindex="-1"></a>chartevents_tble <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con_bq, <span class="st">&quot;chartevents&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-2"><a href="#cb23-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">220045</span>, <span class="dv">220179</span>, <span class="dv">220180</span>, <span class="dv">223761</span>, <span class="dv">220210</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb23-3"><a href="#cb23-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(stay_id, charttime, itemid, valuenum) <span class="sc">|&gt;</span></span>
-<span id="cb23-4"><a href="#cb23-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">right_join</span>(</span>
-<span id="cb23-5"><a href="#cb23-5" aria-hidden="true" tabindex="-1"></a>    <span class="fu">select</span>(icustays_tble,subject_id, stay_id, intime),</span>
-<span id="cb23-6"><a href="#cb23-6" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="st">&quot;stay_id&quot;</span>) <span class="sc">|&gt;</span></span>
-<span id="cb23-7"><a href="#cb23-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(charttime <span class="sc">&gt;=</span> intime) <span class="sc">|&gt;</span></span>
-<span id="cb23-8"><a href="#cb23-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">|&gt;</span></span>
-<span id="cb23-9"><a href="#cb23-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_min</span>(<span class="at">order_by =</span> charttime) <span class="sc">|&gt;</span></span>
-<span id="cb23-10"><a href="#cb23-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">|&gt;</span></span>
-<span id="cb23-11"><a href="#cb23-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">itemid =</span>  <span class="fu">case_when</span>(</span>
-<span id="cb23-12"><a href="#cb23-12" aria-hidden="true" tabindex="-1"></a>    itemid <span class="sc">==</span> <span class="dv">220045</span> <span class="sc">~</span> <span class="st">&quot;heart_rate&quot;</span>,</span>
-<span id="cb23-13"><a href="#cb23-13" aria-hidden="true" tabindex="-1"></a>    itemid <span class="sc">==</span> <span class="dv">220179</span> <span class="sc">~</span> <span class="st">&quot;non_invasive_blood_pressure_systolic&quot;</span>,</span>
-<span id="cb23-14"><a href="#cb23-14" aria-hidden="true" tabindex="-1"></a>    itemid <span class="sc">==</span> <span class="dv">220180</span> <span class="sc">~</span> <span class="st">&quot;non_invasive_blood_pressure_diastolic&quot;</span>,</span>
-<span id="cb23-15"><a href="#cb23-15" aria-hidden="true" tabindex="-1"></a>    itemid <span class="sc">==</span> <span class="dv">220210</span> <span class="sc">~</span> <span class="st">&quot;respiratory_rate&quot;</span>,</span>
-<span id="cb23-16"><a href="#cb23-16" aria-hidden="true" tabindex="-1"></a>    itemid <span class="sc">==</span> <span class="dv">223761</span> <span class="sc">~</span> <span class="st">&quot;temperature_fahrenheit&quot;</span>)) <span class="sc">|&gt;</span></span>
-<span id="cb23-17"><a href="#cb23-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, itemid, valuenum) <span class="sc">|&gt;</span></span>
-<span id="cb23-18"><a href="#cb23-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> itemid, <span class="at">values_from =</span> valuenum, <span class="at">values_fn =</span> mean) <span class="sc">|&gt;</span></span>
-<span id="cb23-19"><a href="#cb23-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a>chartevents_tble <span class="ot">&lt;-</span> <span class="fu">tbl</span>(con_bq, <span class="st">&quot;chartevents&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(itemid <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">220045</span>, <span class="dv">220179</span>, <span class="dv">220180</span>,</span>
+<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a>                       <span class="dv">223761</span>, <span class="dv">220210</span>)) <span class="sc">%&gt;%</span></span>
+<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(stay_id, charttime, itemid, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">right_join</span>(<span class="fu">select</span>(icustays_tble, subject_id, </span>
+<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a>                    stay_id, intime),</span>
+<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a>             <span class="at">by =</span> <span class="st">&quot;stay_id&quot;</span></span>
+<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(charttime <span class="sc">&gt;=</span> intime) <span class="sc">%&gt;%</span></span>
+<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">group_by</span>(subject_id, stay_id, itemid) <span class="sc">%&gt;%</span></span>
+<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">slice_min</span>(<span class="at">order_by =</span> charttime) <span class="sc">%&gt;%</span></span>
+<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ungroup</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, </span>
+<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a>         itemid, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(d_items, <span class="at">by =</span> <span class="st">&quot;itemid&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(subject_id, stay_id, </span>
+<span id="cb26-17"><a href="#cb26-17" aria-hidden="true" tabindex="-1"></a>         label, valuenum) <span class="sc">%&gt;%</span></span>
+<span id="cb26-18"><a href="#cb26-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">pivot_wider</span>(<span class="at">names_from =</span> label, </span>
+<span id="cb26-19"><a href="#cb26-19" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_from =</span> valuenum, </span>
+<span id="cb26-20"><a href="#cb26-20" aria-hidden="true" tabindex="-1"></a>              <span class="at">values_fn =</span> mean) <span class="sc">%&gt;%</span></span>
+<span id="cb26-21"><a href="#cb26-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning: Missing values are always removed in SQL aggregation functions.
 Use `na.rm = TRUE` to silence this warning
@@ -3457,75 +3540,192 @@ This warning is displayed once every 8 hours.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code># Source:   SQL [?? x 7]
 # Database: BigQueryConnection
-   subject_id  stay_id temperature_fahrenheit
-        &lt;int&gt;    &lt;int&gt;                  &lt;dbl&gt;
- 1   10064049 37262930                   98.8
- 2   10118315 34550442                   97.9
- 3   10221179 30087074                   98.6
- 4   10236326 37307878                   97.5
- 5   10246670 37335891                   98.8
- 6   10247690 31807172                   97.7
- 7   10260297 31598080                   98.4
- 8   10331279 33793977                   98.1
- 9   10447709 32541542                   98.2
-10   10456432 37175495                   99.1
-   non_invasive_blood_pressure_diastolic non_invasive_blood_pressure_systolic
-                                   &lt;dbl&gt;                                &lt;dbl&gt;
- 1                                   120                                  143
- 2                                    78                                  116
- 3                                    68                                  148
- 4                                    78                                  137
- 5                                    69                                  100
- 6                                    95                                  132
- 7                                    62                                   99
- 8                                    70                                  101
- 9                                   133                                  146
-10                                    85                                  160
-   respiratory_rate heart_rate
-              &lt;dbl&gt;      &lt;dbl&gt;
- 1               18        139
- 2               16         83
- 3               24         62
- 4               18         87
- 5               15         78
- 6               19         74
- 7               11         70
- 8               16         62
- 9               13         90
-10               16         91
+   subject_id  stay_id `Non Invasive Blood Pressure diastolic`
+        &lt;int&gt;    &lt;int&gt;                                   &lt;dbl&gt;
+ 1   10016810 35436337                                      59
+ 2   10145423 33931625                                      72
+ 3   10167090 36123345                                      49
+ 4   10213338 36232907                                      70
+ 5   10231270 34662519                                      66
+ 6   10250117 33537948                                      55
+ 7   10301908 37835656                                      53
+ 8   10364180 34056688                                      31
+ 9   10442477 30189274                                      62
+10   10548564 32686004                                      58
+   `Temperature Fahrenheit` `Heart Rate` `Non Invasive Blood Pressure systolic`
+                      &lt;dbl&gt;        &lt;dbl&gt;                                  &lt;dbl&gt;
+ 1                     98.3           71                                    101
+ 2                     98.4           92                                    159
+ 3                     97.6           80                                     91
+ 4                     98.4          101                                    131
+ 5                     98.5          108                                    135
+ 6                     98.3          116                                     95
+ 7                     98.7           61                                    148
+ 8                     97.4           99                                    159
+ 9                     99.9           78                                    141
+10                     98.4          110                                    132
+   `Respiratory Rate`
+                &lt;dbl&gt;
+ 1                 16
+ 2                 22
+ 3                 15
+ 4                 31
+ 5                 25
+ 6                 31
+ 7                 20
+ 8                 30
+ 9                 16
+10                 17
 # ℹ more rows</code></pre>
 </div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb26"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb26-1"><a href="#cb26-1" aria-hidden="true" tabindex="-1"></a><span class="co"># chartevents_tble &lt;- tbl(con_bq, &quot;chartevents&quot;) %&gt;%</span></span>
-<span id="cb26-2"><a href="#cb26-2" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(itemid %in% c(220045, 220179, 220180, 223761, 220210)) %&gt;%</span></span>
-<span id="cb26-3"><a href="#cb26-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(stay_id, charttime, itemid, valuenum) %&gt;%</span></span>
-<span id="cb26-4"><a href="#cb26-4" aria-hidden="true" tabindex="-1"></a><span class="co">#   collect() %&gt;%</span></span>
-<span id="cb26-5"><a href="#cb26-5" aria-hidden="true" tabindex="-1"></a><span class="co">#   left_join(icustays_tble %&gt;% </span></span>
-<span id="cb26-6"><a href="#cb26-6" aria-hidden="true" tabindex="-1"></a><span class="co">#               select(subject_id, stay_id, intime), </span></span>
-<span id="cb26-7"><a href="#cb26-7" aria-hidden="true" tabindex="-1"></a><span class="co">#             by = &quot;stay_id&quot;) %&gt;%</span></span>
-<span id="cb26-8"><a href="#cb26-8" aria-hidden="true" tabindex="-1"></a><span class="co">#   filter(charttime &gt;= intime) %&gt;%</span></span>
-<span id="cb26-9"><a href="#cb26-9" aria-hidden="true" tabindex="-1"></a><span class="co">#   group_by(subject_id, stay_id, itemid) %&gt;%</span></span>
-<span id="cb26-10"><a href="#cb26-10" aria-hidden="true" tabindex="-1"></a><span class="co">#   slice_min(order_by = charttime) %&gt;%</span></span>
-<span id="cb26-11"><a href="#cb26-11" aria-hidden="true" tabindex="-1"></a><span class="co">#   ungroup() %&gt;%</span></span>
-<span id="cb26-12"><a href="#cb26-12" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(subject_id, stay_id, itemid, valuenum) %&gt;%</span></span>
-<span id="cb26-13"><a href="#cb26-13" aria-hidden="true" tabindex="-1"></a><span class="co">#   left_join(d_items, by = &quot;itemid&quot;) %&gt;%</span></span>
-<span id="cb26-14"><a href="#cb26-14" aria-hidden="true" tabindex="-1"></a><span class="co">#   select(subject_id, stay_id, label, valuenum) %&gt;%</span></span>
-<span id="cb26-15"><a href="#cb26-15" aria-hidden="true" tabindex="-1"></a><span class="co">#   pivot_wider(names_from = label, values_from = valuenum, values_fn = mean) %&gt;%</span></span>
-<span id="cb26-16"><a href="#cb26-16" aria-hidden="true" tabindex="-1"></a><span class="co">#   print(width = Inf)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<p>###{r} Q1.6 <code>chartevents</code> data</p>
-<p>Connect to <code>chartevents</code> table and retrieve a subset that only contain subjects who appear in <code>icustays_tble</code> and the chart events listed in HW3. Only keep the first chart events during ICU stay and pivot chart events to become variables/columns. Write all steps in <em>one</em> chain of pipes.</p>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb27"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb27-1"><a href="#cb27-1" aria-hidden="true" tabindex="-1"></a><span class="co"># chartevents_tble &lt;- </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 </section>
 <section id="q1.7-put-things-together" class="level3">
 <h3 class="anchored" data-anchor-id="q1.7-put-things-together">Q1.7 Put things together</h3>
 <p>This step is similar to Q7 of HW3. Using <em>one</em> chain of pipes <code>|&gt;</code> to perform following data wrangling steps: (i) start with the <code>icustays_tble</code>, (ii) merge in admissions and patients tables, (iii) keep adults only (age at ICU intime &gt;= 18), (iv) merge in the labevents and chartevents tables, (v) <code>collect</code> the tibble.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb28"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb28-1"><a href="#cb28-1" aria-hidden="true" tabindex="-1"></a><span class="co"># # </span><span class="al">TODO</span></span>
-<span id="cb28-2"><a href="#cb28-2" aria-hidden="true" tabindex="-1"></a><span class="co"># mimic_icu_cohort &lt;- </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="ot">&lt;-</span></span>
+<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a>  icustays_tble <span class="sc">%&gt;%</span></span>
+<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(admissions_tble,</span>
+<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>, <span class="st">&quot;hadm_id&quot;</span>)</span>
+<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(patients_tble, <span class="at">by =</span> <span class="st">&quot;subject_id&quot;</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb29-8"><a href="#cb29-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">intimeage =</span> <span class="fu">year</span>(intime) <span class="sc">-</span> anchor_year <span class="sc">+</span> anchor_age</span>
+<span id="cb29-9"><a href="#cb29-9" aria-hidden="true" tabindex="-1"></a>    ) <span class="sc">%&gt;%</span></span>
+<span id="cb29-10"><a href="#cb29-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">filter</span>(intimeage <span class="sc">&gt;=</span> <span class="dv">18</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb29-11"><a href="#cb29-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(labevents_tble,</span>
+<span id="cb29-12"><a href="#cb29-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>, <span class="st">&quot;stay_id&quot;</span>)</span>
+<span id="cb29-13"><a href="#cb29-13" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb29-14"><a href="#cb29-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">left_join</span>(chartevents_tble,</span>
+<span id="cb29-15"><a href="#cb29-15" aria-hidden="true" tabindex="-1"></a>    <span class="at">by =</span> <span class="fu">c</span>(<span class="st">&quot;subject_id&quot;</span>, <span class="st">&quot;stay_id&quot;</span>)</span>
+<span id="cb29-16"><a href="#cb29-16" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb29-17"><a href="#cb29-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb29-18"><a href="#cb29-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">print</span>(<span class="at">width =</span> <span class="cn">Inf</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stdout">
+<pre><code># A tibble: 73,181 × 41
+   subject_id  hadm_id  stay_id first_careunit last_careunit 
+        &lt;int&gt;    &lt;int&gt;    &lt;int&gt; &lt;chr&gt;          &lt;chr&gt;         
+ 1   10004113 29879900 35200789 Neuro Stepdown Neuro Stepdown
+ 2   10018328 23786647 31269608 Neuro Stepdown Neuro Stepdown
+ 3   10019607 24546857 34178938 Neuro Stepdown Neuro Stepdown
+ 4   10023994 21824032 30439823 Neuro Stepdown Neuro Stepdown
+ 5   10028930 26238833 33941522 Neuro Stepdown Neuro Stepdown
+ 6   10067921 27475639 31097260 Neuro Stepdown Neuro Stepdown
+ 7   10088776 26138210 39177309 Neuro Stepdown Neuro Stepdown
+ 8   10088776 27242516 35695123 Neuro Stepdown Neuro Stepdown
+ 9   10103795 20269407 30619907 Neuro Stepdown Neuro Stepdown
+10   10103795 22741814 31411464 Neuro Stepdown Neuro Stepdown
+   intime              outtime                los admittime          
+   &lt;dttm&gt;              &lt;dttm&gt;               &lt;dbl&gt; &lt;dttm&gt;             
+ 1 2173-03-20 20:16:36 2173-03-21 21:43:59  1.06  2173-03-20 00:00:00
+ 2 2154-04-24 23:03:44 2154-05-02 15:55:21  7.70  2154-04-24 03:15:00
+ 3 2167-03-19 17:37:39 2167-03-21 13:12:28  1.82  2167-03-19 17:36:00
+ 4 2146-07-19 15:32:22 2146-07-20 14:05:53  0.940 2146-07-19 02:13:00
+ 5 2172-08-28 13:11:37 2172-08-29 14:19:35  1.05  2172-08-28 13:09:00
+ 6 2128-07-15 00:55:00 2128-07-16 11:41:23  1.45  2128-07-14 23:59:00
+ 7 2156-01-01 17:29:32 2156-01-02 13:35:41  0.838 2156-01-01 00:54:00
+ 8 2155-05-01 15:30:41 2155-05-02 14:59:41  0.978 2155-05-01 00:00:00
+ 9 2176-09-12 00:26:56 2176-09-17 14:52:28  5.60  2176-09-11 00:28:00
+10 2176-07-01 19:45:36 2176-07-11 22:07:48 10.1   2176-07-01 16:56:00
+   dischtime           deathtime admission_type              admit_provider_id
+   &lt;dttm&gt;              &lt;dttm&gt;    &lt;chr&gt;                       &lt;chr&gt;            
+ 1 2173-03-22 14:35:00 NA        SURGICAL SAME DAY ADMISSION P898NM           
+ 2 2154-05-03 14:00:00 NA        SURGICAL SAME DAY ADMISSION P898NM           
+ 3 2167-03-21 12:55:00 NA        URGENT                      P88US1           
+ 4 2146-07-20 13:00:00 NA        SURGICAL SAME DAY ADMISSION P898NM           
+ 5 2172-08-29 14:15:00 NA        DIRECT OBSERVATION          P898NM           
+ 6 2128-07-16 11:35:00 NA        OBSERVATION ADMIT           P47SIK           
+ 7 2156-01-02 13:00:00 NA        SURGICAL SAME DAY ADMISSION P898NM           
+ 8 2155-05-02 14:59:00 NA        SURGICAL SAME DAY ADMISSION P898NM           
+ 9 2176-09-19 16:30:00 NA        SURGICAL SAME DAY ADMISSION P34SFE           
+10 2176-07-12 14:50:00 NA        OBSERVATION ADMIT           P09SHG           
+   admission_location     discharge_location           insurance language
+   &lt;chr&gt;                  &lt;chr&gt;                        &lt;chr&gt;     &lt;chr&gt;   
+ 1 PHYSICIAN REFERRAL     HOME                         Other     ENGLISH 
+ 2 PHYSICIAN REFERRAL     HOME HEALTH CARE             Other     ENGLISH 
+ 3 TRANSFER FROM HOSPITAL HOME                         Other     ENGLISH 
+ 4 PHYSICIAN REFERRAL     HOME                         Other     ENGLISH 
+ 5 TRANSFER FROM HOSPITAL &lt;NA&gt;                         Other     ENGLISH 
+ 6 EMERGENCY ROOM         HOME                         Medicare  ENGLISH 
+ 7 PHYSICIAN REFERRAL     HOME                         Medicare  ENGLISH 
+ 8 PHYSICIAN REFERRAL     HOME                         Medicare  ENGLISH 
+ 9 PHYSICIAN REFERRAL     REHAB                        Other     ENGLISH 
+10 EMERGENCY ROOM         CHRONIC/LONG TERM ACUTE CARE Other     ENGLISH 
+   marital_status race                   edregtime           edouttime          
+   &lt;chr&gt;          &lt;chr&gt;                  &lt;dttm&gt;              &lt;dttm&gt;             
+ 1 MARRIED        WHITE                  NA                  NA                 
+ 2 DIVORCED       WHITE                  NA                  NA                 
+ 3 SINGLE         UNKNOWN                NA                  NA                 
+ 4 SINGLE         UNKNOWN                NA                  NA                 
+ 5 &lt;NA&gt;           ASIAN                  NA                  NA                 
+ 6 SINGLE         WHITE - OTHER EUROPEAN 2128-07-14 22:19:00 2128-07-15 00:55:00
+ 7 SINGLE         WHITE                  NA                  NA                 
+ 8 SINGLE         WHITE                  NA                  NA                 
+ 9 MARRIED        WHITE                  NA                  NA                 
+10 MARRIED        WHITE                  2176-07-01 14:02:00 2176-07-01 20:29:00
+   hospital_expire_flag gender anchor_age anchor_year anchor_year_group dod   
+                  &lt;int&gt; &lt;chr&gt;       &lt;int&gt;       &lt;int&gt; &lt;chr&gt;             &lt;date&gt;
+ 1                    0 M              33        2173 2014 - 2016       NA    
+ 2                    0 F              83        2154 2014 - 2016       NA    
+ 3                    0 M              20        2167 2017 - 2019       NA    
+ 4                    0 F              38        2146 2017 - 2019       NA    
+ 5                    0 M              65        2172 2017 - 2019       NA    
+ 6                    0 F              68        2128 2017 - 2019       NA    
+ 7                    0 F              73        2155 2014 - 2016       NA    
+ 8                    0 F              73        2155 2014 - 2016       NA    
+ 9                    0 M              58        2176 2017 - 2019       NA    
+10                    0 M              58        2176 2017 - 2019       NA    
+   intimeage Sodium `White Blood Cells` Creatinine Hematocrit Glucose Chloride
+       &lt;int&gt;  &lt;dbl&gt;               &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
+ 1        33     NA                NA         NA         NA        NA       NA
+ 2        83    140                17.8        0.6       27.2     143      108
+ 3        20     NA                NA         NA         NA        NA       NA
+ 4        38    141                 7.1        0.7       40.1     139      102
+ 5        65     NA                NA         NA         NA        NA       NA
+ 6        68     NA                10.2       NA         37.9      NA       NA
+ 7        74    138                 7.6        0.8       26.9      86      105
+ 8        73    140                 8.6        0.9       39.3     119      101
+ 9        58    143                 4.9        0.8       37.7      85      105
+10        58    141                10.5        0.6       40.2     118      104
+   Potassium Bicarbonate `Non Invasive Blood Pressure diastolic`
+       &lt;dbl&gt;       &lt;dbl&gt;                                   &lt;dbl&gt;
+ 1      NA            NA                                      61
+ 2       3.2          22                                      56
+ 3      NA            NA                                      52
+ 4       3.5          22                                      67
+ 5      NA            NA                                      73
+ 6      NA            NA                                      59
+ 7       3.5          26                                      72
+ 8       4.1          26                                      58
+ 9       4            29                                      86
+10       3.3          23                                      99
+   `Temperature Fahrenheit` `Heart Rate` `Non Invasive Blood Pressure systolic`
+                      &lt;dbl&gt;        &lt;dbl&gt;                                  &lt;dbl&gt;
+ 1                     98.4           86                                    108
+ 2                     97.5           73                                    136
+ 3                     99.9           70                                    103
+ 4                     98.3           94                                    119
+ 5                     98.2           75                                    125
+ 6                     97.6           72                                    141
+ 7                     98.2           66                                    122
+ 8                     98.6           76                                    109
+ 9                     98.6           56                                    114
+10                    100.            83                                    129
+   `Respiratory Rate`
+                &lt;dbl&gt;
+ 1                 19
+ 2                 17
+ 3                 17
+ 4                 18
+ 5                 12
+ 6                 15
+ 7                 25
+ 8                 11
+ 9                 14
+10                 20
+# ℹ 73,171 more rows</code></pre>
+</div>
 </div>
 </section>
 <section id="q1.8-preprocessing" class="level3">
@@ -3539,20 +3739,20 @@ This warning is displayed once every 8 hours.</code></pre>
 <h3 class="anchored" data-anchor-id="q1.9-save-the-final-tibble">Q1.9 Save the final tibble</h3>
 <p>Save the final tibble to an R data file <code>mimic_icu_cohort.rds</code> in the <code>mimiciv_shiny</code> folder.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb29"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb29-1"><a href="#cb29-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make a directory mimiciv_shiny</span></span>
-<span id="cb29-2"><a href="#cb29-2" aria-hidden="true" tabindex="-1"></a><span class="co"># if (!dir.exists(&quot;mimiciv_shiny&quot;)) {</span></span>
-<span id="cb29-3"><a href="#cb29-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   dir.create(&quot;mimiciv_shiny&quot;)</span></span>
-<span id="cb29-4"><a href="#cb29-4" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
-<span id="cb29-5"><a href="#cb29-5" aria-hidden="true" tabindex="-1"></a><span class="co"># # save the final tibble</span></span>
-<span id="cb29-6"><a href="#cb29-6" aria-hidden="true" tabindex="-1"></a><span class="co"># mimic_icu_cohort |&gt;</span></span>
-<span id="cb29-7"><a href="#cb29-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   write_rds(&quot;mimiciv_shiny/mimic_icu_cohort.rds&quot;, compress = &quot;gz&quot;)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb31"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb31-1"><a href="#cb31-1" aria-hidden="true" tabindex="-1"></a><span class="co"># make a directory mimiciv_shiny</span></span>
+<span id="cb31-2"><a href="#cb31-2" aria-hidden="true" tabindex="-1"></a><span class="co"># if (!dir.exists(&quot;mimiciv_shiny&quot;)) {</span></span>
+<span id="cb31-3"><a href="#cb31-3" aria-hidden="true" tabindex="-1"></a><span class="co">#   dir.create(&quot;mimiciv_shiny&quot;)</span></span>
+<span id="cb31-4"><a href="#cb31-4" aria-hidden="true" tabindex="-1"></a><span class="co"># }</span></span>
+<span id="cb31-5"><a href="#cb31-5" aria-hidden="true" tabindex="-1"></a><span class="co"># # save the final tibble</span></span>
+<span id="cb31-6"><a href="#cb31-6" aria-hidden="true" tabindex="-1"></a><span class="co"># mimic_icu_cohort |&gt;</span></span>
+<span id="cb31-7"><a href="#cb31-7" aria-hidden="true" tabindex="-1"></a><span class="co">#   write_rds(&quot;mimiciv_shiny/mimic_icu_cohort.rds&quot;, compress = &quot;gz&quot;)</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Close database connection and clear workspace.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb30"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb30-1"><a href="#cb30-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">exists</span>(<span class="st">&quot;con_bq&quot;</span>)) {</span>
-<span id="cb30-2"><a href="#cb30-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dbDisconnect</span>(con_bq)</span>
-<span id="cb30-3"><a href="#cb30-3" aria-hidden="true" tabindex="-1"></a>}</span>
-<span id="cb30-4"><a href="#cb30-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb32"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb32-1"><a href="#cb32-1" aria-hidden="true" tabindex="-1"></a><span class="cf">if</span> (<span class="fu">exists</span>(<span class="st">&quot;con_bq&quot;</span>)) {</span>
+<span id="cb32-2"><a href="#cb32-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">dbDisconnect</span>(con_bq)</span>
+<span id="cb32-3"><a href="#cb32-3" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb32-4"><a href="#cb32-4" aria-hidden="true" tabindex="-1"></a><span class="fu">rm</span>(<span class="at">list =</span> <span class="fu">ls</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Although it is not a good practice to add big data files to git, for grading purpose, please add <code>mimic_icu_cohort.rds</code> to your git repository.</p>
 </section>
