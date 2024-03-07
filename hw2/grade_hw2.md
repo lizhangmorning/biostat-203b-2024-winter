@@ -1,6 +1,6 @@
 *Li Zhang*
 
-### Overall Grade: 158/180
+### Overall Grade: 162/180
 
 ### Quality of report: 10/10
 
@@ -12,7 +12,7 @@
 
 -   Is the report clear (whole sentences, typos, grammar)? Do readers have a clear idea what's going on and how results are produced by just reading the report? Take some points off if the solutions are too succinct to grasp, or there are too many typos/grammar. 
 
-### Completeness, correctness and efficiency of solution: 112/130
+### Completeness, correctness and efficiency of solution: 116/130
 
 - Q1 (16/20)
 
@@ -22,11 +22,11 @@
   
   - Q1.2 Memory can be decreased if column types are factor for the character variables (-1)
 
-- Q2 (71/80)
+- Q2 (72/80)
 
     - Q2.1 (8/10) Explain why read_csv cannot ingest labevents.csv.gz
     
-      - No explanation (-2)
+      - No explanation (-1)
     
     - Q2.2 (9/10) Explain why read_csv cannot ingest labevents.csv.gz
     
@@ -48,11 +48,9 @@
     
       - First ten rows are incorrect (-1)
 
-- Q3 (25/30) Steps should be documented and reproducible. Check final number of rows and columns.
-
-  - Need to display first ten rows (-2)
+- Q3 (28/30) Steps should be documented and reproducible. Check final number of rows and columns.
   
-  - It looks like you did not select for the four columns (-3)
+  - It looks like you did not select for the four columns (-2)
 	    
 ### Usage of Git: 8/10
 
