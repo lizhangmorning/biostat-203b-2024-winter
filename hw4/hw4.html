@@ -3155,7 +3155,7 @@ loaded via a namespace (and not attached):
 <div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a>memuse<span class="sc">::</span><span class="fu">Sys.meminfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Totalram:    8.000 GiB 
-Freeram:   130.328 MiB </code></pre>
+Freeram:   144.031 MiB </code></pre>
 </div>
 </div>
 <p>Load database libraries and the tidyverse frontend:</p>
@@ -3170,7 +3170,7 @@ Freeram:   130.328 MiB </code></pre>
 <pre><code>── Attaching core tidyverse packages ──────────────────────── tidyverse 2.0.0 ──
 ✔ dplyr     1.1.4     ✔ readr     2.1.4
 ✔ forcats   1.0.0     ✔ stringr   1.5.1
-✔ ggplot2   3.4.4     ✔ tibble    3.2.1
+✔ ggplot2   3.5.0     ✔ tibble    3.2.1
 ✔ lubridate 1.9.3     ✔ tidyr     1.3.0
 ✔ purrr     1.0.2     
 ── Conflicts ────────────────────────────────────────── tidyverse_conflicts() ──
@@ -3433,30 +3433,30 @@ FROM `icustays`
 <div class="cell-output cell-output-stdout">
 <pre><code># Source:   SQL [?? x 10]
 # Database: BigQueryConnection
-   subject_id  stay_id Sodium `White Blood Cells` Creatinine Hematocrit Glucose
-        &lt;int&gt;    &lt;int&gt;  &lt;dbl&gt;               &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;
- 1   10011365 37153661    135                10.9        0.7       43       170
- 2   10020640 30849778    164                20.4        0.7       37.1     352
- 3   10034317 36228864    141                12.6        1         29.6     141
- 4   10160622 39565767    131                17.1        0.8       34.5     196
- 5   10174859 36361919    140                 5.5        1.1       48.4      96
- 6   10205143 38428647    138                 4.9        1.5       34.6     104
- 7   10234658 34565014    142                 4.2        1.1       41.2     106
- 8   10288778 30339185    136                16.8        0.8       35.8      90
- 9   10300586 31383472    145                 5.5        0.9       26.6     153
-10   10320037 39280591    139                 7          0.8       39       118
-   Chloride Potassium Bicarbonate
-      &lt;dbl&gt;     &lt;dbl&gt;       &lt;dbl&gt;
- 1       97       4.5          20
- 2      132       4.6          19
- 3      102       5.2          23
- 4       83       4.4          38
- 5       99       5.5          22
- 6       99       4.3          33
- 7      105       3.6          26
- 8       99       3.5          28
- 9      104       4.5          32
-10      114       3.5          17
+   subject_id  stay_id Bicarbonate Glucose Sodium Chloride Hematocrit Potassium
+        &lt;int&gt;    &lt;int&gt;       &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;
+ 1   10070311 37161165          23     106    145      104       43.3       3.9
+ 2   10084454 36734896          20     182    137      102       44.8       3.8
+ 3   10196650 35743309          20     100    142      107       48.2       4.9
+ 4   10211963 38285177          24     122    141      103       40.1       4  
+ 5   10296472 32376754           6      92    137      113       22.6       2.6
+ 6   10338515 33947001          23     176    141      102       32.6       4.2
+ 7   10380616 36037565          28     117    138      106       29.1       4.3
+ 8   10398549 35172154          25      94    139      103       41.1       4.5
+ 9   10444059 39064613          25     141    140      105       35.1       5.1
+10   10498206 32541880          24      84    140      103       38.8       3.9
+   `White Blood Cells` Creatinine
+                 &lt;dbl&gt;      &lt;dbl&gt;
+ 1                 7.9        1  
+ 2                13.4        0.6
+ 3                11.1        2.9
+ 4                16.9        1  
+ 5                 5.4        5.6
+ 6                17.8        2.7
+ 7                 5.4        0.7
+ 8                11.5        0.8
+ 9                 6.1        0.8
+10                 7.7        1.1
 # ℹ more rows</code></pre>
 </div>
 </div>
@@ -3540,42 +3540,42 @@ This warning is displayed once every 8 hours.</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code># Source:   SQL [?? x 7]
 # Database: BigQueryConnection
-   subject_id  stay_id `Non Invasive Blood Pressure diastolic`
-        &lt;int&gt;    &lt;int&gt;                                   &lt;dbl&gt;
- 1   10016810 35436337                                      59
- 2   10145423 33931625                                      72
- 3   10167090 36123345                                      49
- 4   10213338 36232907                                      70
- 5   10231270 34662519                                      66
- 6   10250117 33537948                                      55
- 7   10301908 37835656                                      53
- 8   10364180 34056688                                      31
- 9   10442477 30189274                                      62
-10   10548564 32686004                                      58
-   `Temperature Fahrenheit` `Heart Rate` `Non Invasive Blood Pressure systolic`
-                      &lt;dbl&gt;        &lt;dbl&gt;                                  &lt;dbl&gt;
- 1                     98.3           71                                    101
- 2                     98.4           92                                    159
- 3                     97.6           80                                     91
- 4                     98.4          101                                    131
- 5                     98.5          108                                    135
- 6                     98.3          116                                     95
- 7                     98.7           61                                    148
- 8                     97.4           99                                    159
- 9                     99.9           78                                    141
-10                     98.4          110                                    132
-   `Respiratory Rate`
-                &lt;dbl&gt;
- 1                 16
- 2                 22
- 3                 15
- 4                 31
- 5                 25
- 6                 31
- 7                 20
- 8                 30
- 9                 16
-10                 17
+   subject_id  stay_id `Respiratory Rate`
+        &lt;int&gt;    &lt;int&gt;              &lt;dbl&gt;
+ 1   10035168 36460006                 20
+ 2   10104308 37317907                 23
+ 3   10137046 32884384                 17
+ 4   10255500 36351631                 13
+ 5   10374990 30184254                 19
+ 6   10494449 38793226                 19
+ 7   10496428 39824510                 31
+ 8   10570405 30827926                 20
+ 9   10649145 39677306                 18
+10   10845539 37814411                 16
+   `Non Invasive Blood Pressure diastolic` `Heart Rate`
+                                     &lt;dbl&gt;        &lt;dbl&gt;
+ 1                                      66          108
+ 2                                      74           77
+ 3                                      67           70
+ 4                                      54           60
+ 5                                      43           76
+ 6                                      67           87
+ 7                                      43           64
+ 8                                      60           77
+ 9                                      64          101
+10                                      36           77
+   `Non Invasive Blood Pressure systolic` `Temperature Fahrenheit`
+                                    &lt;dbl&gt;                    &lt;dbl&gt;
+ 1                                    118                     98.4
+ 2                                    153                     97.3
+ 3                                    106                     98.4
+ 4                                    127                     97.7
+ 5                                    111                     98  
+ 6                                    139                     97.6
+ 7                                     88                     97.5
+ 8                                    107                     98.3
+ 9                                    104                     98.5
+10                                     55                     98.2
 # ℹ more rows</code></pre>
 </div>
 </div>
@@ -3676,54 +3676,54 @@ This warning is displayed once every 8 hours.</code></pre>
  8                    0 F              73        2155 2014 - 2016       NA    
  9                    0 M              58        2176 2017 - 2019       NA    
 10                    0 M              58        2176 2017 - 2019       NA    
-   intimeage Sodium `White Blood Cells` Creatinine Hematocrit Glucose Chloride
-       &lt;int&gt;  &lt;dbl&gt;               &lt;dbl&gt;      &lt;dbl&gt;      &lt;dbl&gt;   &lt;dbl&gt;    &lt;dbl&gt;
- 1        33     NA                NA         NA         NA        NA       NA
- 2        83    140                17.8        0.6       27.2     143      108
- 3        20     NA                NA         NA         NA        NA       NA
- 4        38    141                 7.1        0.7       40.1     139      102
- 5        65     NA                NA         NA         NA        NA       NA
- 6        68     NA                10.2       NA         37.9      NA       NA
- 7        74    138                 7.6        0.8       26.9      86      105
- 8        73    140                 8.6        0.9       39.3     119      101
- 9        58    143                 4.9        0.8       37.7      85      105
-10        58    141                10.5        0.6       40.2     118      104
-   Potassium Bicarbonate `Non Invasive Blood Pressure diastolic`
-       &lt;dbl&gt;       &lt;dbl&gt;                                   &lt;dbl&gt;
- 1      NA            NA                                      61
- 2       3.2          22                                      56
- 3      NA            NA                                      52
- 4       3.5          22                                      67
- 5      NA            NA                                      73
- 6      NA            NA                                      59
- 7       3.5          26                                      72
- 8       4.1          26                                      58
- 9       4            29                                      86
-10       3.3          23                                      99
-   `Temperature Fahrenheit` `Heart Rate` `Non Invasive Blood Pressure systolic`
-                      &lt;dbl&gt;        &lt;dbl&gt;                                  &lt;dbl&gt;
- 1                     98.4           86                                    108
- 2                     97.5           73                                    136
- 3                     99.9           70                                    103
- 4                     98.3           94                                    119
- 5                     98.2           75                                    125
- 6                     97.6           72                                    141
- 7                     98.2           66                                    122
- 8                     98.6           76                                    109
- 9                     98.6           56                                    114
-10                    100.            83                                    129
-   `Respiratory Rate`
-                &lt;dbl&gt;
- 1                 19
- 2                 17
- 3                 17
- 4                 18
- 5                 12
- 6                 15
- 7                 25
- 8                 11
- 9                 14
-10                 20
+   intimeage Bicarbonate Glucose Sodium Chloride Hematocrit Potassium
+       &lt;int&gt;       &lt;dbl&gt;   &lt;dbl&gt;  &lt;dbl&gt;    &lt;dbl&gt;      &lt;dbl&gt;     &lt;dbl&gt;
+ 1        33          NA      NA     NA       NA       NA        NA  
+ 2        83          22     143    140      108       27.2       3.2
+ 3        20          NA      NA     NA       NA       NA        NA  
+ 4        38          22     139    141      102       40.1       3.5
+ 5        65          NA      NA     NA       NA       NA        NA  
+ 6        68          NA      NA     NA       NA       37.9      NA  
+ 7        74          26      86    138      105       26.9       3.5
+ 8        73          26     119    140      101       39.3       4.1
+ 9        58          29      85    143      105       37.7       4  
+10        58          23     118    141      104       40.2       3.3
+   `White Blood Cells` Creatinine `Respiratory Rate`
+                 &lt;dbl&gt;      &lt;dbl&gt;              &lt;dbl&gt;
+ 1                NA         NA                   19
+ 2                17.8        0.6                 17
+ 3                NA         NA                   17
+ 4                 7.1        0.7                 18
+ 5                NA         NA                   12
+ 6                10.2       NA                   15
+ 7                 7.6        0.8                 25
+ 8                 8.6        0.9                 11
+ 9                 4.9        0.8                 14
+10                10.5        0.6                 20
+   `Non Invasive Blood Pressure diastolic` `Heart Rate`
+                                     &lt;dbl&gt;        &lt;dbl&gt;
+ 1                                      61           86
+ 2                                      56           73
+ 3                                      52           70
+ 4                                      67           94
+ 5                                      73           75
+ 6                                      59           72
+ 7                                      72           66
+ 8                                      58           76
+ 9                                      86           56
+10                                      99           83
+   `Non Invasive Blood Pressure systolic` `Temperature Fahrenheit`
+                                    &lt;dbl&gt;                    &lt;dbl&gt;
+ 1                                    108                     98.4
+ 2                                    136                     97.5
+ 3                                    103                     99.9
+ 4                                    119                     98.3
+ 5                                    125                     98.2
+ 6                                    141                     97.6
+ 7                                    122                     98.2
+ 8                                    109                     98.6
+ 9                                    114                     98.6
+10                                    129                    100. 
 # ℹ 73,171 more rows</code></pre>
 </div>
 </div>
@@ -3749,56 +3749,100 @@ Attaching package: &#39;janitor&#39;</code></pre>
 <div class="sourceCode cell-code" id="cb34"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb34-1"><a href="#cb34-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
 <span id="cb34-2"><a href="#cb34-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(gtsummary)</span>
 <span id="cb34-3"><a href="#cb34-3" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># (i) Lump infrequent levels into &quot;Other&quot; level for first_careunit, last_careunit, admission_type, admission_location, and discharge_location</span></span>
+<span id="cb34-4"><a href="#cb34-4" aria-hidden="true" tabindex="-1"></a><span class="co"># (i) Lump</span></span>
 <span id="cb34-5"><a href="#cb34-5" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="ot">&lt;-</span> mimic_icu_cohort <span class="sc">%&gt;%</span></span>
 <span id="cb34-6"><a href="#cb34-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_careunit =</span> <span class="fu">fct_lump</span>(first_careunit, <span class="at">n =</span> <span class="dv">4</span>, <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span>),</span>
-<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_careunit =</span> <span class="fu">fct_lump</span>(last_careunit, <span class="at">n =</span> <span class="dv">4</span>, <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span>),</span>
-<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>    <span class="at">admission_type =</span> <span class="fu">fct_lump</span>(admission_type, <span class="at">n =</span> <span class="dv">4</span>, <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span>),</span>
-<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>    <span class="at">admission_location =</span> <span class="fu">fct_lump</span>(admission_location, <span class="at">n =</span> <span class="dv">4</span>, <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span>),</span>
-<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    <span class="at">discharge_location =</span> <span class="fu">fct_lump</span>(discharge_location, <span class="at">n =</span> <span class="dv">4</span>, <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span>)</span>
-<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb34-7"><a href="#cb34-7" aria-hidden="true" tabindex="-1"></a>    <span class="at">first_careunit =</span> <span class="fu">fct_lump</span>(</span>
+<span id="cb34-8"><a href="#cb34-8" aria-hidden="true" tabindex="-1"></a>      first_careunit,</span>
+<span id="cb34-9"><a href="#cb34-9" aria-hidden="true" tabindex="-1"></a>      <span class="at">n =</span> <span class="dv">4</span>,</span>
+<span id="cb34-10"><a href="#cb34-10" aria-hidden="true" tabindex="-1"></a>      <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span></span>
+<span id="cb34-11"><a href="#cb34-11" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb34-12"><a href="#cb34-12" aria-hidden="true" tabindex="-1"></a>    <span class="at">last_careunit =</span> <span class="fu">fct_lump</span>(</span>
+<span id="cb34-13"><a href="#cb34-13" aria-hidden="true" tabindex="-1"></a>      last_careunit,</span>
+<span id="cb34-14"><a href="#cb34-14" aria-hidden="true" tabindex="-1"></a>      <span class="at">n =</span> <span class="dv">4</span>,</span>
+<span id="cb34-15"><a href="#cb34-15" aria-hidden="true" tabindex="-1"></a>      <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span></span>
+<span id="cb34-16"><a href="#cb34-16" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb34-17"><a href="#cb34-17" aria-hidden="true" tabindex="-1"></a>    <span class="at">admission_type =</span> <span class="fu">fct_lump</span>(</span>
+<span id="cb34-18"><a href="#cb34-18" aria-hidden="true" tabindex="-1"></a>      admission_type,</span>
+<span id="cb34-19"><a href="#cb34-19" aria-hidden="true" tabindex="-1"></a>      <span class="at">n =</span> <span class="dv">4</span>,</span>
+<span id="cb34-20"><a href="#cb34-20" aria-hidden="true" tabindex="-1"></a>      <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span></span>
+<span id="cb34-21"><a href="#cb34-21" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb34-22"><a href="#cb34-22" aria-hidden="true" tabindex="-1"></a>    <span class="at">admission_location =</span> <span class="fu">fct_lump</span>(</span>
+<span id="cb34-23"><a href="#cb34-23" aria-hidden="true" tabindex="-1"></a>      admission_location,</span>
+<span id="cb34-24"><a href="#cb34-24" aria-hidden="true" tabindex="-1"></a>      <span class="at">n =</span> <span class="dv">4</span>,</span>
+<span id="cb34-25"><a href="#cb34-25" aria-hidden="true" tabindex="-1"></a>      <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span></span>
+<span id="cb34-26"><a href="#cb34-26" aria-hidden="true" tabindex="-1"></a>    ),</span>
+<span id="cb34-27"><a href="#cb34-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">discharge_location =</span> <span class="fu">fct_lump</span>(</span>
+<span id="cb34-28"><a href="#cb34-28" aria-hidden="true" tabindex="-1"></a>      discharge_location,</span>
+<span id="cb34-29"><a href="#cb34-29" aria-hidden="true" tabindex="-1"></a>      <span class="at">n =</span> <span class="dv">4</span>,</span>
+<span id="cb34-30"><a href="#cb34-30" aria-hidden="true" tabindex="-1"></a>      <span class="at">other_level =</span> <span class="st">&quot;Other&quot;</span></span>
+<span id="cb34-31"><a href="#cb34-31" aria-hidden="true" tabindex="-1"></a>    )</span>
+<span id="cb34-32"><a href="#cb34-32" aria-hidden="true" tabindex="-1"></a>  )</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a><span class="co"># (ii) Collapse the levels of race into ASIAN, BLACK, HISPANIC, WHITE, and Other</span></span>
-<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="ot">&lt;-</span> mimic_icu_cohort <span class="sc">%&gt;%</span></span>
-<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
-<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>    <span class="at">race =</span> <span class="fu">fct_collapse</span>(race,</span>
-<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>                        <span class="at">ASIAN =</span> <span class="fu">c</span>(<span class="st">&quot;ASIAN&quot;</span>, <span class="st">&quot;ASIAN - CHINESE&quot;</span>, <span class="st">&quot;ASIAN - KOREAN&quot;</span>, <span class="st">&quot;ASIAN - ASIAN INDIAN&quot;</span>, <span class="st">&quot;ASIAN - SOUTH EAST ASIAN&quot;</span>),</span>
-<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>                        <span class="at">BLACK =</span> <span class="fu">c</span>(<span class="st">&quot;BLACK/AFRICAN AMERICAN&quot;</span>, <span class="st">&quot;BLACK/CAPE VERDEAN&quot;</span>, <span class="st">&quot;BLACK/AFRICAN&quot;</span>,<span class="st">&quot;BLACK/CARIBBEAN ISLAND&quot;</span> ),</span>
-<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>                        <span class="at">HISPANIC =</span> <span class="fu">c</span>(<span class="st">&quot;HISPANIC OR LATINO&quot;</span>, <span class="st">&quot;HISPANIC/LATINO - CUBAN&quot;</span>,</span>
-<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - DOMINICAN&quot;</span>, <span class="st">&quot;HISPANIC/LATINO - PUERTO RICAN&quot;</span>, </span>
-<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - SALVADORAN&quot;</span>, <span class="st">&quot;HISPANIC/LATINO - CENTRAL AMERICAN&quot;</span>, </span>
-<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - MEXICAN&quot;</span>, <span class="st">&quot;HISPANIC/LATINO - HONDURAN&quot;</span>, </span>
-<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - GUATEMALAN&quot;</span>, <span class="st">&quot;HISPANIC/LATINO - COLUMBIAN&quot;</span>),</span>
-<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>                        <span class="at">WHITE =</span> <span class="fu">c</span>(<span class="st">&quot;WHITE&quot;</span>, <span class="st">&quot;WHITE - BRAZILIAN&quot;</span>, <span class="st">&quot;WHITE - RUSSIAN&quot;</span>, <span class="st">&quot;WHITE - OTHER EUROPEAN&quot;</span>, <span class="st">&quot;WHITE - EASTERN EUROPEAN&quot;</span> ),</span>
-<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                        <span class="at">Other =</span> <span class="fu">c</span>(<span class="st">&quot;UNKNOWN&quot;</span>, <span class="st">&quot;PATIENT DECLINED TO ANSWER&quot;</span>, </span>
-<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;OTHER&quot;</span>, <span class="st">&quot;PORTUGUESE&quot;</span>, </span>
-<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER&quot;</span>,<span class="st">&quot;UNABLE TO OBTAIN&quot;</span>,</span>
-<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;AMERICAN INDIAN/ALASKA NATIVE&quot;</span>, <span class="st">&quot;MULTIPLE RACE/ETHNICITY&quot;</span>,<span class="st">&quot;SOUTH AMERICAN&quot;</span>))</span>
-<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
-<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">los_long =</span> los <span class="sc">&gt;=</span> <span class="dv">2</span>) </span>
-<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a><span class="co"># (iv) Summarize the data using tbl_summary(), stratified by los_long</span></span>
-<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="sc">%&gt;%</span></span>
-<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(<span class="sc">-</span>subject_id, <span class="sc">-</span>hadm_id, <span class="sc">-</span>stay_id, <span class="sc">-</span> intime, <span class="sc">-</span> outtime,<span class="sc">-</span> admittime, <span class="sc">-</span> dischtime,<span class="sc">-</span> deathtime, <span class="sc">-</span>admit_provider_id, <span class="sc">-</span> edregtime, <span class="sc">-</span> edouttime, <span class="sc">-</span> anchor_age,  <span class="sc">-</span> anchor_year, <span class="sc">-</span> anchor_year_group,) <span class="sc">%&gt;%</span></span>
-<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(<span class="at">by =</span> los_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb35"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb35-1"><a href="#cb35-1" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="ot">&lt;-</span> mimic_icu_cohort <span class="sc">%&gt;%</span></span>
+<span id="cb35-2"><a href="#cb35-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(</span>
+<span id="cb35-3"><a href="#cb35-3" aria-hidden="true" tabindex="-1"></a>    <span class="at">race =</span> <span class="fu">fct_collapse</span>(race,</span>
+<span id="cb35-4"><a href="#cb35-4" aria-hidden="true" tabindex="-1"></a>                        <span class="at">ASIAN =</span> <span class="fu">c</span>(<span class="st">&quot;ASIAN&quot;</span>, <span class="st">&quot;ASIAN - CHINESE&quot;</span>, </span>
+<span id="cb35-5"><a href="#cb35-5" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;ASIAN - KOREAN&quot;</span>, </span>
+<span id="cb35-6"><a href="#cb35-6" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;ASIAN - ASIAN INDIAN&quot;</span>, </span>
+<span id="cb35-7"><a href="#cb35-7" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;ASIAN - SOUTH EAST ASIAN&quot;</span>),</span>
+<span id="cb35-8"><a href="#cb35-8" aria-hidden="true" tabindex="-1"></a>                        <span class="at">BLACK =</span> <span class="fu">c</span>(<span class="st">&quot;BLACK/AFRICAN AMERICAN&quot;</span>, </span>
+<span id="cb35-9"><a href="#cb35-9" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;BLACK/CAPE VERDEAN&quot;</span>, </span>
+<span id="cb35-10"><a href="#cb35-10" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;BLACK/AFRICAN&quot;</span>,</span>
+<span id="cb35-11"><a href="#cb35-11" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;BLACK/CARIBBEAN ISLAND&quot;</span> ),</span>
+<span id="cb35-12"><a href="#cb35-12" aria-hidden="true" tabindex="-1"></a>                        <span class="at">HISPANIC =</span> <span class="fu">c</span>(<span class="st">&quot;HISPANIC OR LATINO&quot;</span>, </span>
+<span id="cb35-13"><a href="#cb35-13" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - CUBAN&quot;</span>,</span>
+<span id="cb35-14"><a href="#cb35-14" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - DOMINICAN&quot;</span>, </span>
+<span id="cb35-15"><a href="#cb35-15" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - PUERTO RICAN&quot;</span>, </span>
+<span id="cb35-16"><a href="#cb35-16" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - SALVADORAN&quot;</span>, </span>
+<span id="cb35-17"><a href="#cb35-17" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - CENTRAL AMERICAN&quot;</span>, </span>
+<span id="cb35-18"><a href="#cb35-18" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - MEXICAN&quot;</span>, </span>
+<span id="cb35-19"><a href="#cb35-19" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - HONDURAN&quot;</span>, </span>
+<span id="cb35-20"><a href="#cb35-20" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - GUATEMALAN&quot;</span>, </span>
+<span id="cb35-21"><a href="#cb35-21" aria-hidden="true" tabindex="-1"></a>                                     <span class="st">&quot;HISPANIC/LATINO - COLUMBIAN&quot;</span>),</span>
+<span id="cb35-22"><a href="#cb35-22" aria-hidden="true" tabindex="-1"></a>                        <span class="at">WHITE =</span> <span class="fu">c</span>(<span class="st">&quot;WHITE&quot;</span>,</span>
+<span id="cb35-23"><a href="#cb35-23" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;WHITE - BRAZILIAN&quot;</span>, </span>
+<span id="cb35-24"><a href="#cb35-24" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;WHITE - RUSSIAN&quot;</span>, </span>
+<span id="cb35-25"><a href="#cb35-25" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;WHITE - OTHER EUROPEAN&quot;</span>, </span>
+<span id="cb35-26"><a href="#cb35-26" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;WHITE - EASTERN EUROPEAN&quot;</span> ),</span>
+<span id="cb35-27"><a href="#cb35-27" aria-hidden="true" tabindex="-1"></a>                        <span class="at">Other =</span> <span class="fu">c</span>(<span class="st">&quot;UNKNOWN&quot;</span>, </span>
+<span id="cb35-28"><a href="#cb35-28" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;PATIENT DECLINED TO ANSWER&quot;</span>, </span>
+<span id="cb35-29"><a href="#cb35-29" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;OTHER&quot;</span>, <span class="st">&quot;PORTUGUESE&quot;</span>, </span>
+<span id="cb35-30"><a href="#cb35-30" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER&quot;</span>,</span>
+<span id="cb35-31"><a href="#cb35-31" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;UNABLE TO OBTAIN&quot;</span>,</span>
+<span id="cb35-32"><a href="#cb35-32" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;AMERICAN INDIAN/ALASKA NATIVE&quot;</span>, </span>
+<span id="cb35-33"><a href="#cb35-33" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;MULTIPLE RACE/ETHNICITY&quot;</span>,</span>
+<span id="cb35-34"><a href="#cb35-34" aria-hidden="true" tabindex="-1"></a>                                  <span class="st">&quot;SOUTH AMERICAN&quot;</span>))</span>
+<span id="cb35-35"><a href="#cb35-35" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb35-36"><a href="#cb35-36" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-37"><a href="#cb35-37" aria-hidden="true" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">los_long =</span> los <span class="sc">&gt;=</span> <span class="dv">2</span>) </span>
+<span id="cb35-38"><a href="#cb35-38" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb35-39"><a href="#cb35-39" aria-hidden="true" tabindex="-1"></a><span class="co"># (iv) Summarize</span></span>
+<span id="cb35-40"><a href="#cb35-40" aria-hidden="true" tabindex="-1"></a>mimic_icu_cohort <span class="sc">%&gt;%</span></span>
+<span id="cb35-41"><a href="#cb35-41" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(</span>
+<span id="cb35-42"><a href="#cb35-42" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>subject_id, <span class="sc">-</span>hadm_id, <span class="sc">-</span>stay_id,</span>
+<span id="cb35-43"><a href="#cb35-43" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>intime, <span class="sc">-</span>outtime, <span class="sc">-</span>admittime,</span>
+<span id="cb35-44"><a href="#cb35-44" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>dischtime, <span class="sc">-</span>deathtime, <span class="sc">-</span>admit_provider_id,</span>
+<span id="cb35-45"><a href="#cb35-45" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>edregtime, <span class="sc">-</span>edouttime, <span class="sc">-</span>anchor_age,</span>
+<span id="cb35-46"><a href="#cb35-46" aria-hidden="true" tabindex="-1"></a>    <span class="sc">-</span>anchor_year, <span class="sc">-</span>anchor_year_group,</span>
+<span id="cb35-47"><a href="#cb35-47" aria-hidden="true" tabindex="-1"></a>  ) <span class="sc">%&gt;%</span></span>
+<span id="cb35-48"><a href="#cb35-48" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tbl_summary</span>(<span class="at">by =</span> los_long)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output-display">
-<div id="akzapcsoae" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
-<style>#akzapcsoae table {
+<div id="lfqtzvfxdm" style="padding-left:0px;padding-right:0px;padding-top:10px;padding-bottom:10px;overflow-x:auto;overflow-y:auto;width:auto;height:auto;">
+<style>#lfqtzvfxdm table {
 font-family: system-ui, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
 -webkit-font-smoothing: antialiased;
 -moz-osx-font-smoothing: grayscale;
 }
-#akzapcsoae thead, #akzapcsoae tbody, #akzapcsoae tfoot, #akzapcsoae tr, #akzapcsoae td, #akzapcsoae th {
+#lfqtzvfxdm thead, #lfqtzvfxdm tbody, #lfqtzvfxdm tfoot, #lfqtzvfxdm tr, #lfqtzvfxdm td, #lfqtzvfxdm th {
 border-style: none;
 }
-#akzapcsoae p {
+#lfqtzvfxdm p {
 margin: 0;
 padding: 0;
 }
-#akzapcsoae .gt_table {
+#lfqtzvfxdm .gt_table {
 display: table;
 border-collapse: collapse;
 line-height: normal;
@@ -3823,11 +3867,11 @@ border-left-style: none;
 border-left-width: 2px;
 border-left-color: #D3D3D3;
 }
-#akzapcsoae .gt_caption {
+#lfqtzvfxdm .gt_caption {
 padding-top: 4px;
 padding-bottom: 4px;
 }
-#akzapcsoae .gt_title {
+#lfqtzvfxdm .gt_title {
 color: #333333;
 font-size: 125%;
 font-weight: initial;
@@ -3838,7 +3882,7 @@ padding-right: 5px;
 border-bottom-color: #FFFFFF;
 border-bottom-width: 0;
 }
-#akzapcsoae .gt_subtitle {
+#lfqtzvfxdm .gt_subtitle {
 color: #333333;
 font-size: 85%;
 font-weight: initial;
@@ -3849,7 +3893,7 @@ padding-right: 5px;
 border-top-color: #FFFFFF;
 border-top-width: 0;
 }
-#akzapcsoae .gt_heading {
+#lfqtzvfxdm .gt_heading {
 background-color: #FFFFFF;
 text-align: center;
 border-bottom-color: #FFFFFF;
@@ -3860,12 +3904,12 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#akzapcsoae .gt_bottom_border {
+#lfqtzvfxdm .gt_bottom_border {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#akzapcsoae .gt_col_headings {
+#lfqtzvfxdm .gt_col_headings {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -3879,7 +3923,7 @@ border-right-style: none;
 border-right-width: 1px;
 border-right-color: #D3D3D3;
 }
-#akzapcsoae .gt_col_heading {
+#lfqtzvfxdm .gt_col_heading {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3898,7 +3942,7 @@ padding-left: 5px;
 padding-right: 5px;
 overflow-x: hidden;
 }
-#akzapcsoae .gt_column_spanner_outer {
+#lfqtzvfxdm .gt_column_spanner_outer {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -3909,13 +3953,13 @@ padding-bottom: 0;
 padding-left: 4px;
 padding-right: 4px;
 }
-#akzapcsoae .gt_column_spanner_outer:first-child {
+#lfqtzvfxdm .gt_column_spanner_outer:first-child {
 padding-left: 0;
 }
-#akzapcsoae .gt_column_spanner_outer:last-child {
+#lfqtzvfxdm .gt_column_spanner_outer:last-child {
 padding-right: 0;
 }
-#akzapcsoae .gt_column_spanner {
+#lfqtzvfxdm .gt_column_spanner {
 border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
@@ -3926,10 +3970,10 @@ overflow-x: hidden;
 display: inline-block;
 width: 100%;
 }
-#akzapcsoae .gt_spanner_row {
+#lfqtzvfxdm .gt_spanner_row {
 border-bottom-style: hidden;
 }
-#akzapcsoae .gt_group_heading {
+#lfqtzvfxdm .gt_group_heading {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3954,7 +3998,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 text-align: left;
 }
-#akzapcsoae .gt_empty_group_heading {
+#lfqtzvfxdm .gt_empty_group_heading {
 padding: 0.5px;
 color: #333333;
 background-color: #FFFFFF;
@@ -3968,13 +4012,13 @@ border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 vertical-align: middle;
 }
-#akzapcsoae .gt_from_md > :first-child {
+#lfqtzvfxdm .gt_from_md > :first-child {
 margin-top: 0;
 }
-#akzapcsoae .gt_from_md > :last-child {
+#lfqtzvfxdm .gt_from_md > :last-child {
 margin-bottom: 0;
 }
-#akzapcsoae .gt_row {
+#lfqtzvfxdm .gt_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -3992,7 +4036,7 @@ border-right-color: #D3D3D3;
 vertical-align: middle;
 overflow-x: hidden;
 }
-#akzapcsoae .gt_stub {
+#lfqtzvfxdm .gt_stub {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -4004,7 +4048,7 @@ border-right-color: #D3D3D3;
 padding-left: 5px;
 padding-right: 5px;
 }
-#akzapcsoae .gt_stub_row_group {
+#lfqtzvfxdm .gt_stub_row_group {
 color: #333333;
 background-color: #FFFFFF;
 font-size: 100%;
@@ -4017,13 +4061,13 @@ padding-left: 5px;
 padding-right: 5px;
 vertical-align: top;
 }
-#akzapcsoae .gt_row_group_first td {
+#lfqtzvfxdm .gt_row_group_first td {
 border-top-width: 2px;
 }
-#akzapcsoae .gt_row_group_first th {
+#lfqtzvfxdm .gt_row_group_first th {
 border-top-width: 2px;
 }
-#akzapcsoae .gt_summary_row {
+#lfqtzvfxdm .gt_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -4032,14 +4076,14 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#akzapcsoae .gt_first_summary_row {
+#lfqtzvfxdm .gt_first_summary_row {
 border-top-style: solid;
 border-top-color: #D3D3D3;
 }
-#akzapcsoae .gt_first_summary_row.thick {
+#lfqtzvfxdm .gt_first_summary_row.thick {
 border-top-width: 2px;
 }
-#akzapcsoae .gt_last_summary_row {
+#lfqtzvfxdm .gt_last_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -4048,7 +4092,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#akzapcsoae .gt_grand_summary_row {
+#lfqtzvfxdm .gt_grand_summary_row {
 color: #333333;
 background-color: #FFFFFF;
 text-transform: inherit;
@@ -4057,7 +4101,7 @@ padding-bottom: 8px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#akzapcsoae .gt_first_grand_summary_row {
+#lfqtzvfxdm .gt_first_grand_summary_row {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -4066,7 +4110,7 @@ border-top-style: double;
 border-top-width: 6px;
 border-top-color: #D3D3D3;
 }
-#akzapcsoae .gt_last_grand_summary_row_top {
+#lfqtzvfxdm .gt_last_grand_summary_row_top {
 padding-top: 8px;
 padding-bottom: 8px;
 padding-left: 5px;
@@ -4075,10 +4119,10 @@ border-bottom-style: double;
 border-bottom-width: 6px;
 border-bottom-color: #D3D3D3;
 }
-#akzapcsoae .gt_striped {
+#lfqtzvfxdm .gt_striped {
 background-color: rgba(128, 128, 128, 0.05);
 }
-#akzapcsoae .gt_table_body {
+#lfqtzvfxdm .gt_table_body {
 border-top-style: solid;
 border-top-width: 2px;
 border-top-color: #D3D3D3;
@@ -4086,7 +4130,7 @@ border-bottom-style: solid;
 border-bottom-width: 2px;
 border-bottom-color: #D3D3D3;
 }
-#akzapcsoae .gt_footnotes {
+#lfqtzvfxdm .gt_footnotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -4099,7 +4143,7 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#akzapcsoae .gt_footnote {
+#lfqtzvfxdm .gt_footnote {
 margin: 0px;
 font-size: 90%;
 padding-top: 4px;
@@ -4107,7 +4151,7 @@ padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#akzapcsoae .gt_sourcenotes {
+#lfqtzvfxdm .gt_sourcenotes {
 color: #333333;
 background-color: #FFFFFF;
 border-bottom-style: none;
@@ -4120,57 +4164,57 @@ border-right-style: none;
 border-right-width: 2px;
 border-right-color: #D3D3D3;
 }
-#akzapcsoae .gt_sourcenote {
+#lfqtzvfxdm .gt_sourcenote {
 font-size: 90%;
 padding-top: 4px;
 padding-bottom: 4px;
 padding-left: 5px;
 padding-right: 5px;
 }
-#akzapcsoae .gt_left {
+#lfqtzvfxdm .gt_left {
 text-align: left;
 }
-#akzapcsoae .gt_center {
+#lfqtzvfxdm .gt_center {
 text-align: center;
 }
-#akzapcsoae .gt_right {
+#lfqtzvfxdm .gt_right {
 text-align: right;
 font-variant-numeric: tabular-nums;
 }
-#akzapcsoae .gt_font_normal {
+#lfqtzvfxdm .gt_font_normal {
 font-weight: normal;
 }
-#akzapcsoae .gt_font_bold {
+#lfqtzvfxdm .gt_font_bold {
 font-weight: bold;
 }
-#akzapcsoae .gt_font_italic {
+#lfqtzvfxdm .gt_font_italic {
 font-style: italic;
 }
-#akzapcsoae .gt_super {
+#lfqtzvfxdm .gt_super {
 font-size: 65%;
 }
-#akzapcsoae .gt_footnote_marks {
+#lfqtzvfxdm .gt_footnote_marks {
 font-size: 75%;
 vertical-align: 0.4em;
 position: initial;
 }
-#akzapcsoae .gt_asterisk {
+#lfqtzvfxdm .gt_asterisk {
 font-size: 100%;
 vertical-align: 0;
 }
-#akzapcsoae .gt_indent_1 {
+#lfqtzvfxdm .gt_indent_1 {
 text-indent: 5px;
 }
-#akzapcsoae .gt_indent_2 {
+#lfqtzvfxdm .gt_indent_2 {
 text-indent: 10px;
 }
-#akzapcsoae .gt_indent_3 {
+#lfqtzvfxdm .gt_indent_3 {
 text-indent: 15px;
 }
-#akzapcsoae .gt_indent_4 {
+#lfqtzvfxdm .gt_indent_4 {
 text-indent: 20px;
 }
-#akzapcsoae .gt_indent_5 {
+#lfqtzvfxdm .gt_indent_5 {
 text-indent: 25px;
 }
 </style>
@@ -4500,6 +4544,26 @@ text-indent: 25px;
 <td class="gt_row gt_center" headers="stat_2">67 (56, 78)</td>
 </tr>
 <tr class="odd">
+<td class="gt_row gt_left" headers="label">Bicarbonate</td>
+<td class="gt_row gt_center" headers="stat_1">25.0 (22.0, 27.0)</td>
+<td class="gt_row gt_center" headers="stat_2">24.0 (21.0, 27.0)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">    Unknown</td>
+<td class="gt_row gt_center" headers="stat_1">4,270</td>
+<td class="gt_row gt_center" headers="stat_2">4,780</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">Glucose</td>
+<td class="gt_row gt_center" headers="stat_1">118 (98, 153)</td>
+<td class="gt_row gt_center" headers="stat_2">122 (100, 159)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">    Unknown</td>
+<td class="gt_row gt_center" headers="stat_1">4,282</td>
+<td class="gt_row gt_center" headers="stat_2">4,817</td>
+</tr>
+<tr class="odd">
 <td class="gt_row gt_left" headers="label">Sodium</td>
 <td class="gt_row gt_center" headers="stat_1">139.0 (136.0, 141.0)</td>
 <td class="gt_row gt_center" headers="stat_2">138.0 (135.0, 141.0)</td>
@@ -4508,6 +4572,36 @@ text-indent: 25px;
 <td class="gt_row gt_left" headers="label">    Unknown</td>
 <td class="gt_row gt_center" headers="stat_1">4,174</td>
 <td class="gt_row gt_center" headers="stat_2">4,698</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">Chloride</td>
+<td class="gt_row gt_center" headers="stat_1">102 (98, 105)</td>
+<td class="gt_row gt_center" headers="stat_2">102 (98, 105)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">    Unknown</td>
+<td class="gt_row gt_center" headers="stat_1">4,175</td>
+<td class="gt_row gt_center" headers="stat_2">4,708</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">Hematocrit</td>
+<td class="gt_row gt_center" headers="stat_1">36 (30, 40)</td>
+<td class="gt_row gt_center" headers="stat_2">35 (29, 40)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">    Unknown</td>
+<td class="gt_row gt_center" headers="stat_1">2,236</td>
+<td class="gt_row gt_center" headers="stat_2">2,781</td>
+</tr>
+<tr class="odd">
+<td class="gt_row gt_left" headers="label">Potassium</td>
+<td class="gt_row gt_center" headers="stat_1">4.20 (3.80, 4.60)</td>
+<td class="gt_row gt_center" headers="stat_2">4.20 (3.80, 4.70)</td>
+</tr>
+<tr class="even">
+<td class="gt_row gt_left" headers="label">    Unknown</td>
+<td class="gt_row gt_center" headers="stat_1">4,189</td>
+<td class="gt_row gt_center" headers="stat_2">4,712</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">White Blood Cells</td>
@@ -4530,54 +4624,14 @@ text-indent: 25px;
 <td class="gt_row gt_center" headers="stat_2">3,171</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">Hematocrit</td>
-<td class="gt_row gt_center" headers="stat_1">36 (30, 40)</td>
-<td class="gt_row gt_center" headers="stat_2">35 (29, 40)</td>
+<td class="gt_row gt_left" headers="label">Respiratory Rate</td>
+<td class="gt_row gt_center" headers="stat_1">18.0 (15.0, 22.0)</td>
+<td class="gt_row gt_center" headers="stat_2">19.0 (15.0, 23.0)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">2,236</td>
-<td class="gt_row gt_center" headers="stat_2">2,781</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">Glucose</td>
-<td class="gt_row gt_center" headers="stat_1">118 (98, 153)</td>
-<td class="gt_row gt_center" headers="stat_2">122 (100, 159)</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">4,282</td>
-<td class="gt_row gt_center" headers="stat_2">4,817</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">Chloride</td>
-<td class="gt_row gt_center" headers="stat_1">102 (98, 105)</td>
-<td class="gt_row gt_center" headers="stat_2">102 (98, 105)</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">4,175</td>
-<td class="gt_row gt_center" headers="stat_2">4,708</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">Potassium</td>
-<td class="gt_row gt_center" headers="stat_1">4.20 (3.80, 4.60)</td>
-<td class="gt_row gt_center" headers="stat_2">4.20 (3.80, 4.70)</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">4,189</td>
-<td class="gt_row gt_center" headers="stat_2">4,712</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">Bicarbonate</td>
-<td class="gt_row gt_center" headers="stat_1">25.0 (22.0, 27.0)</td>
-<td class="gt_row gt_center" headers="stat_2">24.0 (21.0, 27.0)</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">4,270</td>
-<td class="gt_row gt_center" headers="stat_2">4,780</td>
+<td class="gt_row gt_center" headers="stat_1">85</td>
+<td class="gt_row gt_center" headers="stat_2">10</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">Non Invasive Blood Pressure diastolic</td>
@@ -4588,16 +4642,6 @@ text-indent: 25px;
 <td class="gt_row gt_left" headers="label">    Unknown</td>
 <td class="gt_row gt_center" headers="stat_1">725</td>
 <td class="gt_row gt_center" headers="stat_2">249</td>
-</tr>
-<tr class="odd">
-<td class="gt_row gt_left" headers="label">Temperature Fahrenheit</td>
-<td class="gt_row gt_center" headers="stat_1">98.10 (97.60, 98.60)</td>
-<td class="gt_row gt_center" headers="stat_2">98.20 (97.60, 98.80)</td>
-</tr>
-<tr class="even">
-<td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">1,180</td>
-<td class="gt_row gt_center" headers="stat_2">173</td>
 </tr>
 <tr class="odd">
 <td class="gt_row gt_left" headers="label">Heart Rate</td>
@@ -4620,14 +4664,14 @@ text-indent: 25px;
 <td class="gt_row gt_center" headers="stat_2">246</td>
 </tr>
 <tr class="odd">
-<td class="gt_row gt_left" headers="label">Respiratory Rate</td>
-<td class="gt_row gt_center" headers="stat_1">18.0 (15.0, 22.0)</td>
-<td class="gt_row gt_center" headers="stat_2">19.0 (15.0, 23.0)</td>
+<td class="gt_row gt_left" headers="label">Temperature Fahrenheit</td>
+<td class="gt_row gt_center" headers="stat_1">98.10 (97.60, 98.60)</td>
+<td class="gt_row gt_center" headers="stat_2">98.20 (97.60, 98.80)</td>
 </tr>
 <tr class="even">
 <td class="gt_row gt_left" headers="label">    Unknown</td>
-<td class="gt_row gt_center" headers="stat_1">85</td>
-<td class="gt_row gt_center" headers="stat_2">10</td>
+<td class="gt_row gt_center" headers="stat_1">1,180</td>
+<td class="gt_row gt_center" headers="stat_2">173</td>
 </tr>
 </tbody><tfoot class="gt_footnotes">
 <tr class="odd">

@@ -205,41 +205,85 @@ library(janitor)
 library(dplyr)
 library(gtsummary)
 
-# (i) Lump infrequent levels into "Other" level for first_careunit, last_careunit, admission_type, admission_location, and discharge_location
+# (i) Lump
 mimic_icu_cohort <- mimic_icu_cohort %>%
   mutate(
-    first_careunit = fct_lump(first_careunit, n = 4, other_level = "Other"),
-    last_careunit = fct_lump(last_careunit, n = 4, other_level = "Other"),
-    admission_type = fct_lump(admission_type, n = 4, other_level = "Other"),
-    admission_location = fct_lump(admission_location, n = 4, other_level = "Other"),
-    discharge_location = fct_lump(discharge_location, n = 4, other_level = "Other")
+    first_careunit = fct_lump(
+      first_careunit,
+      n = 4,
+      other_level = "Other"
+    ),
+    last_careunit = fct_lump(
+      last_careunit,
+      n = 4,
+      other_level = "Other"
+    ),
+    admission_type = fct_lump(
+      admission_type,
+      n = 4,
+      other_level = "Other"
+    ),
+    admission_location = fct_lump(
+      admission_location,
+      n = 4,
+      other_level = "Other"
+    ),
+    discharge_location = fct_lump(
+      discharge_location,
+      n = 4,
+      other_level = "Other"
+    )
   )
 ```
 
 ```{r}
-# (ii) Collapse the levels of race into ASIAN, BLACK, HISPANIC, WHITE, and Other
 mimic_icu_cohort <- mimic_icu_cohort %>%
   mutate(
     race = fct_collapse(race,
-                        ASIAN = c("ASIAN", "ASIAN - CHINESE", "ASIAN - KOREAN", "ASIAN - ASIAN INDIAN", "ASIAN - SOUTH EAST ASIAN"),
-                        BLACK = c("BLACK/AFRICAN AMERICAN", "BLACK/CAPE VERDEAN", "BLACK/AFRICAN","BLACK/CARIBBEAN ISLAND" ),
-                        HISPANIC = c("HISPANIC OR LATINO", "HISPANIC/LATINO - CUBAN",
-                                     "HISPANIC/LATINO - DOMINICAN", "HISPANIC/LATINO - PUERTO RICAN", 
-                                     "HISPANIC/LATINO - SALVADORAN", "HISPANIC/LATINO - CENTRAL AMERICAN", 
-                                     "HISPANIC/LATINO - MEXICAN", "HISPANIC/LATINO - HONDURAN", 
-                                     "HISPANIC/LATINO - GUATEMALAN", "HISPANIC/LATINO - COLUMBIAN"),
-                        WHITE = c("WHITE", "WHITE - BRAZILIAN", "WHITE - RUSSIAN", "WHITE - OTHER EUROPEAN", "WHITE - EASTERN EUROPEAN" ),
-                        Other = c("UNKNOWN", "PATIENT DECLINED TO ANSWER", 
+                        ASIAN = c("ASIAN", "ASIAN - CHINESE", 
+                                  "ASIAN - KOREAN", 
+                                  "ASIAN - ASIAN INDIAN", 
+                                  "ASIAN - SOUTH EAST ASIAN"),
+                        BLACK = c("BLACK/AFRICAN AMERICAN", 
+                                  "BLACK/CAPE VERDEAN", 
+                                  "BLACK/AFRICAN",
+                                  "BLACK/CARIBBEAN ISLAND" ),
+                        HISPANIC = c("HISPANIC OR LATINO", 
+                                     "HISPANIC/LATINO - CUBAN",
+                                     "HISPANIC/LATINO - DOMINICAN", 
+                                     "HISPANIC/LATINO - PUERTO RICAN", 
+                                     "HISPANIC/LATINO - SALVADORAN", 
+                                     "HISPANIC/LATINO - CENTRAL AMERICAN", 
+                                     "HISPANIC/LATINO - MEXICAN", 
+                                     "HISPANIC/LATINO - HONDURAN", 
+                                     "HISPANIC/LATINO - GUATEMALAN", 
+                                     "HISPANIC/LATINO - COLUMBIAN"),
+                        WHITE = c("WHITE",
+                                  "WHITE - BRAZILIAN", 
+                                  "WHITE - RUSSIAN", 
+                                  "WHITE - OTHER EUROPEAN", 
+                                  "WHITE - EASTERN EUROPEAN" ),
+                        Other = c("UNKNOWN", 
+                                  "PATIENT DECLINED TO ANSWER", 
                                   "OTHER", "PORTUGUESE", 
-                                  "NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER","UNABLE TO OBTAIN",
-                                  "AMERICAN INDIAN/ALASKA NATIVE", "MULTIPLE RACE/ETHNICITY","SOUTH AMERICAN"))
+                                  "NATIVE HAWAIIAN OR OTHER PACIFIC ISLANDER",
+                                  "UNABLE TO OBTAIN",
+                                  "AMERICAN INDIAN/ALASKA NATIVE", 
+                                  "MULTIPLE RACE/ETHNICITY",
+                                  "SOUTH AMERICAN"))
   ) %>%
 
   mutate(los_long = los >= 2) 
 
-# (iv) Summarize the data using tbl_summary(), stratified by los_long
+# (iv) Summarize
 mimic_icu_cohort %>%
-  select(-subject_id, -hadm_id, -stay_id, - intime, - outtime,- admittime, - dischtime,- deathtime, -admit_provider_id, - edregtime, - edouttime, - anchor_age,  - anchor_year, - anchor_year_group,) %>%
+  select(
+    -subject_id, -hadm_id, -stay_id,
+    -intime, -outtime, -admittime,
+    -dischtime, -deathtime, -admit_provider_id,
+    -edregtime, -edouttime, -anchor_age,
+    -anchor_year, -anchor_year_group,
+  ) %>%
   tbl_summary(by = los_long)
 
 ```
@@ -273,4 +317,3 @@ Develop a Shiny app for exploring the ICU cohort data created in Q1. The app sho
 ![](Q2example2.png)
 
 ![](Q2example3.png)
-
