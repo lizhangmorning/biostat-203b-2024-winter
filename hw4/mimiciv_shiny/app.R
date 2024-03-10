@@ -1,10 +1,13 @@
 #
-# This is a Shiny web application. You can run the application by clicking
-# the 'Run App' button above.
 #
-# Find out more about building applications with Shiny here:
 #
-#    https://shiny.posit.co/
+#
+#  I have tried to enhance the previous version of the submitted assignment,
+#  but for some reason, this new version is not running and keeps giving the error
+#  "Warning: Error in UseMethod: no applicable method for 'escape' applied to an
+#  object of class "c('reactiveExpr', 'reactive', 'function')".
+#  I have been unable to resolve this issue.
+#
 #
 
 library(shiny)
@@ -18,31 +21,32 @@ library(gt)
 library(gtsummary)
 library(tidyverse)
 
-dataset <- readRDS("/Users/zhangli/203b_hw_new/hw4/mimiciv_shiny/mimic_icu_cohort.rds")
-
 # path to the service account token
-satoken <- "biostat-203b-2024-winter-313290ce47a6.json"
+satoken <- "/Users/zhangli/203b_hw_new/hw4/mimiciv_shiny/biostat-203b-2024-winter-313290ce47a6.json"
 # BigQuery authentication using service account
 bq_auth(path = satoken)
+
 con_bq <- dbConnect(
   bigrquery::bigquery(),
   project = "biostat-203b-2024-winter",
   dataset = "mimic4_v2_2",
   billing = "biostat-203b-2024-winter"
 )
+con_bq
+# dbListTables(con_bq)
 
-sid <- as.character(input$patient_id)
+dataset <- readRDS("/Users/zhangli/203b_hw_new/hw4/mimiciv_shiny/mimic_icu_cohort.rds")
+patient_ids <- unique(dataset$subject_id)
 sid_adt <- tbl(con_bq, "transfers")
 sid_lab <- tbl(con_bq, "labevents")
-sid_procedure <- tbl(con_bq, "procedures_icd")
+procedure_tble <- tbl(con_bq, "procedures_icd")
+d_icd_procedures_tble <- tbl(con_bq, "d_icd_procedures")
 sid_patients <- tbl(con_bq, "patients")
-
 sid_admissions <- tbl(con_bq, "admissions")
-
 sid_diagnoses <- tbl(con_bq, "diagnoses_icd")
-
-diagnoses_info <- tbl(con_bq, "diagnoses_icd")
-diagnoses_id <- tbl(con_bq, "d_icd_diagnoses")
+diagnoses_tble <- tbl(con_bq, "diagnoses_icd")
+d_icd_diagnoses_tble <- tbl(con_bq, "d_icd_diagnoses")
+data_chartevents <- tbl(con_bq, "chartevents")
 
 
 
@@ -88,8 +92,9 @@ ui <- fluidPage(
         sidebarLayout(
           sidebarPanel(
             helpText("Select a patient"),
-            selectizeInput("patient_id", "Patient ID", 
-                           choices = NULL, options = list(maxItems = 1)),
+            selectizeInput("patient_id", "Patient ID",
+              choices = NULL, options = list(maxItems = 1)
+            ),
             selectInput("type", "which kind of information",
               choices = c("ADT", "ICU stay"),
               selected = "ADT"
@@ -105,35 +110,33 @@ ui <- fluidPage(
 )
 
 
-server <- function(input, output) {
-  # observe({
-  #   updateSelectizeInput(session, "patient_id", 
-  # choices = unique(dataset$subject_id))
-  # })
-
+server <- function(input, output, session) {
+  observe({
+    updateSelectizeInput(session, "patient_id",
+      choices = patient_ids[1:5], server = TRUE
+    )
+  })
 
 
   summary_data <- reactive({
     data <- dataset
     if (!is.null(data)) {
       if (input$unit_selector %in% c("lab_events", "chart_events")) {
-        selected_variables <- if (input$unit_selector == "lab_events") {
-          c(
+        selected_vars <- switch(input$unit_selector,
+          "lab_events" = c(
             "Bicarbonate", "Chloride", "Creatinine",
             "Glucose", "Potassium", "Sodium",
             "Hematocrit", "White Blood Cells"
-          )
-        } else if (input$unit_selector == "chart_events") {
-          c(
+          ),
+          "chart_events" = c(
             "Heart Rate", "Non Invasive Blood Pressure systolic",
             "Non Invasive Blood Pressure diastolic",
             "Respiratory Rate", "Temperature Fahrenheit"
           )
-        }
-
+        )
 
         data %>%
-          summarise_at(vars(all_of(selected_variables)), list(
+          summarise(across(all_of(selected_vars), list(
             mean = ~ mean(., na.rm = TRUE),
             median = ~ median(., na.rm = TRUE),
             min = ~ min(., na.rm = TRUE),
@@ -141,11 +144,11 @@ server <- function(input, output) {
             sd = ~ sd(., na.rm = TRUE),
             Q1 = ~ quantile(., 0.25, na.rm = TRUE),
             Q3 = ~ quantile(., 0.75, na.rm = TRUE)
-          ))
+          )))
       } else {
         data %>%
-          filter(!is.na(.data[[input$unit_selector]])) %>%
-          group_by(.data[[input$unit_selector]]) %>%
+          filter(!is.na(!!sym(input$unit_selector))) %>%
+          group_by(!!sym(input$unit_selector)) %>%
           summarise(
             mean_los = mean(los, na.rm = TRUE),
             median_los = median(los, na.rm = TRUE),
@@ -158,7 +161,6 @@ server <- function(input, output) {
       }
     }
   })
-
 
   output$summary <- renderPrint({
     summary_data() %>%
@@ -232,59 +234,24 @@ server <- function(input, output) {
         coord_flip()
     }
   })
-}
 
 
+  sub_id <- reactive({
+    req(input$patient_id)
+    as.integer(input$patient_id)
+  })
 
-
-adt_reactive <- reactive({
-  sub_id <- as.integer(input$patient_id)
-  sid_adt |>
+  adt <-
+    sid_adt |>
     filter(subject_id == sub_id & eventtype != "discharge") |>
     collect()
-})
 
-labevents_reactive <- reactive({
-  sub_id <- as.integer(input$patient_id)
-  labevents_info |>
-    filter(subject_id == sub_id) |>
-    select(charttime) |>
-    collect()
-})
-
-procedures_reactive <- reactive({
-  sub_id <- as.integer(input$patient_id)
-  procedures_info |>
-    filter(subject_id == sub_id) |>
-    select(chartdate, icd_code, icd_version) |>
-    left_join(procedures_id, by = c("icd_code" = "icd_code", 
-                                    "icd_version" = "icd_version")) |>
-    select(chartdate, long_title) |>
-    collect()
-})
-
-diagnoses_reactive <- reactive({
-  sub_id <- as.integer(input$patient_id)
-  diagnoses_info |>
-    filter(subject_id == sub_id) |>
-    select(seq_num, icd_code, icd_version) |>
-    left_join(diagnoses_id, by = c("icd_code" = "icd_code", 
-                                   "icd_version" = "icd_version")) |>
-    select(long_title) |>
-    collect() |>
-    slice(1:3)
-})
-
-adt_title_reactive <- reactive({
-  sub_id <- as.integer(input$patient_id)
-  plot_title <- paste("Patient", sub_id, "ICU stays Vitals")
-})
-
-chartevents_reactive <- reactive({
-  sub_id <- as.integer(input$patient_id)
-  chartevents_info |>
-    filter(subject_id == sub_id & itemid %in% c(220045, 220179, 
-                                                220180, 220210, 223761)) |>
+  chartevents <-
+    data_chartevents |>
+    filter(subject_id == sub_id & itemid %in% c(
+      220045, 220179,
+      220180, 220210, 223761
+    )) |>
     select(stay_id, charttime, itemid, value) |>
     collect() |>
     mutate(
@@ -297,103 +264,110 @@ chartevents_reactive <- reactive({
       )
     ) |>
     mutate(charttime = as.POSIXct(charttime), value = as.numeric(value))
-})
 
-plot1_title_reactive <- reactive({
-  sub_id <- as.integer(input$patient_id)
-  patients_info <- mimic_icu_cohort[mimic_icu_cohort$subject_id == sub_id, ]
-  gender <- patients_info$gender[1]
-  age <- patients_info$anchor_age[1]
-  race <- patients_info$race[1]
-  plot_title <- paste("Patient", sub_id, ",", gder, ",", age, "years old", 
-                      ",", tolower(race))
-})
+  labevents <-
+    sid_lab |>
+    filter(subject_id == sub_id) |>
+    select(subject_id, charttime, storetime) |>
+    collect()
 
+  procedures <- procedures_tble %>%
+    filter(subject_id == sub_id) %>%
+    select(subject_id, chartdate, icd_code, icd_version) %>%
+    left_join(d_icd_procedures_tble, by = c("icd_code", "icd_version")) %>%
+    select(subject_id, chartdate, long_title) %>%
+    collect()
 
-plot2_title_reactive <- reactive({
-  sub_id <- as.integer(input$patient_id)
-  plot_title <- paste("Patient", sub_id, "ICU stays Vitals")
-})
+  patients_info <- dataset |>
+    filter(subject_id == sub_id) |>
+    collect()
 
-
-
-
-# # ADT plot
-# output$adt_plot <- renderPlot({
-#   req(input$patient_id, input$type)
-#   if (is.null(input$patient_id) || input$patient_id == "") {
-#     return(NULL)
-#   }
-#   if (input$type == "ADT") {
-#     adt <- adt_reactive()
-#     labevents <- labevents_reactive()
-#     procedures <- procedures_reactive()
-#     diagnoses <- diagnoses_reactive()
-#     plot_title <- plot1_title_reactive()
-#     plot_subtitle <- paste(diagnoses$long_title[1], "\n", 
-#                            diagnoses$long_title[2], "\n",
-#                            diagnoses$long_title[3])
-# 
-#     ggplot() +
-#       # admission, discharge, and transfer (ADT)
-#       geom_segment(
-#         data = adt,
-#         mapping = aes(
-#           x = intime,
-#           xend = outtime,
-#           y = "ADT",
-#           yend = "ADT",
-#           color = careunit,
-#           linewidth = str_detect(careunit, "(ICU|CCU)")
-#         ),
-#       ) +
-#       # labs
-#       geom_point(
-#         data = labevents |> distinct(charttime, keep_all = TRUE),
-#         mapping = aes(x = charttime, y = "Lab"),
-#         shape = "+",
-#         size = 5
-#       ) +
-#       # procedures
-#       geom_jitter(
-#         # only keep the 1st procedure on the same day
-#         data = procedures,
-#         mapping = aes(
-#           x = chartdate + hours(12),
-#           y = "Procedure",
-#           shape = str_sub(long_title, 1, 25)
-#         ),
-#         size = 3,
-#         height = 0
-#       ) +
-#       labs(
-#         title = plot_title,
-#         subtitle = plot_subtitle,
-#         x = "Calendar Time",
-#         y = "",
-#         color = "Care Unit",
-#         shape = "Procedure"
-#       ) +
-#       guides(linewidth = "none") +
-#       scale_y_discrete(limits = rev) +
-#       theme_light() +
-#       theme(legend.position = "bottom", legend.box = "vertical")
-#   } else {
-#     plot_title <- plot2_title_reactive()
-#     chartevents <- chartevents_reactive()
-#     ggplot(chartevents, aes(x = charttime, y = value, color = itemid)) +
-#       geom_point() +
-#       geom_line() +
-#       facet_grid(itemid ~ stay_id, scales = "free") +
-#       labs(
-#         title = plot_title,
-#         x = "",
-#         y = ""
-#       ) +
-#       theme_light() +
-#       theme(legend.position = "none")
-#   }
-# })
+  diagnoses <- diagnoses_tble %>%
+    filter(subject_id == sub_id) %>%
+    select(subject_id, icd_code, icd_version) %>%
+    left_join(d_icd_diagnoses_tble, by = c("icd_code", "icd_version")) %>%
+    select(subject_id, long_title) %>%
+    collect()
 
 
-shinyApp(ui = ui, server = server)
+
+  output$adt_plot <- renderPlot({
+    req(sub_id, input$type)
+    type <- input$type
+
+    if (is.null(sub_id) || sub_id == "") {
+      return(NULL)
+    }
+
+    if (type == "ADT") {
+      plot_title <- paste(
+        "Patient", sub_id, ",", patients_info$gender[1],
+        ",", patients_info$anchor_age[1], "years old",
+        ",", tolower(patients_info$race[1])
+      )
+      plot_subtitle <- paste(
+        diagnoses$long_title[1], "\n",
+        diagnoses$long_title[2], "\n",
+        diagnoses$long_title[3]
+      )
+      ggplot() +
+        # admission, discharge, and transfer (ADT)
+        geom_segment(
+          data = adt,
+          mapping = aes(
+            x = intime,
+            xend = outtime,
+            y = "ADT",
+            yend = "ADT",
+            color = careunit,
+            linewidth = str_detect(careunit, "(ICU|CCU)")
+          ),
+        ) +
+        # labs
+        geom_point(
+          data = labevents |> distinct(charttime, keep_all = TRUE),
+          mapping = aes(x = charttime, y = "Lab"),
+          shape = "+",
+          size = 5
+        ) +
+        # procedures
+        geom_jitter(
+          # only keep the 1st procedure on the same day
+          data = procedures,
+          mapping = aes(
+            x = chartdate + hours(12),
+            y = "Procedure",
+            shape = str_sub(long_title, 1, 25)
+          ),
+          size = 3,
+          height = 0
+        ) +
+        labs(
+          title = plot_title,
+          subtitle = plot_subtitle,
+          x = "Calendar Time",
+          y = "",
+          color = "Care Unit",
+          shape = "Procedure"
+        ) +
+        guides(linewidth = "none") +
+        scale_y_discrete(limits = rev) +
+        theme_light() +
+        theme(legend.position = "bottom", legend.box = "vertical")
+    } else {
+      ggplot(chartevents, aes(x = charttime, y = value, color = itemid)) +
+        geom_point() +
+        geom_line() +
+        facet_grid(itemid ~ stay_id, scales = "free") +
+        labs(
+          title = paste("Patient", sub_id, "ICU stays Vitals"),
+          x = "",
+          y = ""
+        ) +
+        guides(color = FALSE)
+    }
+  })
+}
+
+
+shinyApp(ui, server)
