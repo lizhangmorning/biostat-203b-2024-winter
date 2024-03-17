@@ -41,7 +41,7 @@ library(tidymodels)
 library(dplyr)
 library(rsample)
 
-mimiciv_icu_cohort <- readRDS("/Users/zhangli/203b_hw_new/hw4/mimiciv_shiny/mimic_icu_cohort.rds")|>
+mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")|>
   arrange(subject_id, hadm_id, stay_id)
 
 # Numerical summaries stratified by the outcome `los_long`.
@@ -106,15 +106,7 @@ gb_recipe <-
   step_impute_mean('Non Invasive Blood Pressure systolic') |>
   step_impute_mean('Temperature Fahrenheit') |>
 
-
   step_impute_mode(marital_status) |>
-  step_impute_mode(first_careunit) |>
-  step_impute_mode(admission_type) |>
-  step_impute_mode(admission_location) |>
-  step_impute_mode(insurance) |>
-  step_impute_mode(language) |>
-  step_impute_mode(gender) |>
-  step_impute_mode(race) |>
   
   # create traditional dummy variables
   step_dummy(all_nominal_predictors()) |>
@@ -159,7 +151,7 @@ Here we tune the number of trees `trees` and the number of features to use in ea
 ```{r}
 param_grid <- grid_regular(
   tree_depth(range = c(1L, 3L)),
-  learn_rate(range = c(-5, 2), trans = log10_trans()),
+  learn_rate(range = c(-3, 2), trans = log10_trans()),
   levels = c(3, 10)
   )
 param_grid
@@ -181,7 +173,8 @@ gb_fit <- gb_wf |>
   tune_grid(
     resamples = folds,
     grid = param_grid,
-    metrics = metric_set(roc_auc, accuracy)
+    metrics = metric_set(roc_auc, accuracy),
+    control=control_grid(verbose = TRUE)
     )
 gb_fit
 ```
