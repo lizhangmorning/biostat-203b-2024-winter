@@ -110,6 +110,13 @@ logit_recipe <-
 
 
   step_impute_mode(marital_status) |>
+  step_impute_mode(first_careunit) |>
+  step_impute_mode(admission_type) |>
+  step_impute_mode(admission_location) |>
+  step_impute_mode(insurance) |>
+  step_impute_mode(language) |>
+  step_impute_mode(gender) |>
+  step_impute_mode(race) |>
   
   # create traditional dummy variables
   step_dummy(all_nominal_predictors()) |>
@@ -121,7 +128,6 @@ logit_recipe <-
   # prep(training = Heart_other, retain = TRUE) |>
   print()
 ```
-
 
 ## Model
 
