@@ -1,0 +1,114 @@
+## Model
+
+```{r}
+mlp_mod <- 
+  mlp(
+    mode = "classification",
+    hidden_units = tune(),
+    dropout = tune(),
+    epochs = 50,
+  ) |> 
+  set_engine("keras", verbose = 0)
+mlp_mod
+```
+
+## Workflow in R and pipeline in Python
+
+Here we bundle the preprocessing step (Python) or recipe (R) and model.
+
+```{r}
+mlp_wf <- workflow() |>
+  add_recipe(mlp_recipe) |>
+  add_model(mlp_mod)
+mlp_wf
+```
+
+## Tuning grid
+
+Here we tune the `cost` and radial scale `rbf_sigma`.
+
+```{r}
+param_grid <- grid_regular(
+  hidden_units(range = c(1, 20)),
+  dropout(range = c(0, 0.6)),
+  levels = 5
+  )
+param_grid
+```
+
+
+## Cross-validation (CV)
+
+::: {.panel-tabset}
+
+#### R
+
+Set cross-validation partitions.
+```{r}
+set.seed(203)
+
+folds <- vfold_cv(mimic_other, v = 5)
+folds
+```
+
+Fit cross-validation.
+```{r}
+
+
+mlp_fit <- mlp_wf |>
+  tune_grid(
+    resamples = folds,
+    grid = param_grid,
+    metrics = metric_set(roc_auc, accuracy)
+    )
+mlp_fit
+```
+
+Visualize CV results:
+```{r}
+mlp_fit |>
+  collect_metrics() |>
+  print(width = Inf) |>
+  filter(.metric == "roc_auc") |>
+  ggplot(mapping = aes(x = dropout, y = mean, color = factor(hidden_units))) +
+  geom_point() +
+  labs(x = "Dropout Rate", y = "CV AUC") +
+  scale_x_log10()
+```
+
+Show the top 5 models.
+```{r}
+mlp_fit |>
+  show_best("roc_auc")
+```
+Let's select the best model.
+```{r}
+best_mlp <- mlp_fit |>
+  select_best("roc_auc")
+best_mlp
+```
+
+## Finalize our model
+
+Now we are done tuning. Finally, let’s fit this final model to the whole training data and use our test data to estimate the model performance we expect to see with new data.
+
+```{r}
+# Final workflow
+final_wf <- mlp_wf |>
+  finalize_workflow(best_mlp)
+final_wf
+```
+
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit <- 
+  final_wf |>
+  last_fit(data_split)
+final_fit
+```
+
+```{r}
+# Test metrics
+final_fit |> 
+  collect_metrics()
+```

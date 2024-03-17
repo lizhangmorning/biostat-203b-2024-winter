@@ -175,7 +175,7 @@ svm_fit <- svm_wf |>
     resamples = folds,
     grid = param_grid,
     metrics = metric_set(roc_auc, accuracy),
-    # control = control_grid(verbosity = 2)
+    control=control_grid(verbose = TRUE)
     )
 svm_fit
 ```
