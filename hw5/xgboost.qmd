@@ -1,5 +1,5 @@
 ---
-title: "Machine Learning Workflow: Logistic regression (MIMIC-IV Data)"
+title: "Machine Learning Workflow: XGBoost (MIMIC-IV Data)"
 subtitle: "Biostat 203B"
 author: "Li Zhang @ UCLA UID:206305918"
 date: today
@@ -30,7 +30,6 @@ Display system information for reproducibility.
 sessionInfo()
 ```
 
-
 The goal is to predict whether a patient’s ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. 
 
 ## MIMIC-IV Cohort
@@ -58,7 +57,6 @@ mimiciv_icu_cohort <- mimiciv_icu_cohort %>%
 mutate(los_long = as.factor(los_long))
 
 tbl_summary(mimiciv_icu_cohort, by = los_long)
-
 ```
 
 - We have following features available at an ICU stay’s `intime`: 
@@ -67,9 +65,8 @@ tbl_summary(mimiciv_icu_cohort, by = los_long)
 
     - Categorical features coded as string:  `first_careunit`, `admission_type`, `admission_location`, `insurance`, `language`, `marital_status`, `race`, `gender`
 
-
-
 ## Initial split into test and non-test sets
+
 ```{r}
 set.seed(203)
 data_split <- initial_split(
@@ -87,8 +84,9 @@ dim(mimic_test)
 ```
 
 ## Recipe
+
 ```{r}
-logit_recipe <- 
+gb_recipe <- 
   recipe(
     los_long ~ ., 
     data = mimic_other
@@ -110,6 +108,13 @@ logit_recipe <-
 
 
   step_impute_mode(marital_status) |>
+  step_impute_mode(first_careunit) |>
+  step_impute_mode(admission_type) |>
+  step_impute_mode(admission_location) |>
+  step_impute_mode(insurance) |>
+  step_impute_mode(language) |>
+  step_impute_mode(gender) |>
+  step_impute_mode(race) |>
   
   # create traditional dummy variables
   step_dummy(all_nominal_predictors()) |>
@@ -125,13 +130,15 @@ logit_recipe <-
 ## Model
 
 ```{r}
-logit_mod <- 
-  logistic_reg(
-    penalty = tune(), 
-    mixture = tune()
+gb_mod <- 
+  boost_tree(
+    mode = "classification",
+    trees = 1000, 
+    tree_depth = tune(),
+    learn_rate = tune()
   ) |> 
-  set_engine("glmnet", standardize = FALSE) |>
-  print()
+  set_engine("xgboost")
+gb_mod
 ```
 
 ## Workflow
@@ -139,23 +146,23 @@ logit_mod <-
 Here we bundle the recipe and model.
 
 ```{r}
-logit_wf <- workflow() |>
-  add_recipe(logit_recipe) |>
-  add_model(logit_mod) |>
-  print()
+gb_wf <- workflow() |>
+  add_recipe(gb_recipe) |>
+  add_model(gb_mod)
+gb_wf
 ```
 
 ## Tuning grid
 
-Here we tune the `penalty` and `mixture` hyperparameters.
+Here we tune the number of trees `trees` and the number of features to use in each split `mtry`.
 
 ```{r}
 param_grid <- grid_regular(
-  penalty(range = c(-6, 3)), 
-  mixture(),
-  levels = c(100, 5)
-  ) |>
-  print()
+  tree_depth(range = c(1L, 3L)),
+  learn_rate(range = c(-5, 2), trans = log10_trans()),
+  levels = c(3, 10)
+  )
+param_grid
 ```
 
 ## Cross-validation (CV)
@@ -163,49 +170,45 @@ param_grid <- grid_regular(
 Set cross-validation partitions.
 ```{r}
 set.seed(203)
-# mimic_other$los_long <- factor(mimic_other$los_long)
+
 folds <- vfold_cv(mimic_other, v = 5)
 folds
 ```
 
 Fit cross-validation.
 ```{r}
-(logit_fit <- logit_wf |>
+gb_fit <- gb_wf |>
   tune_grid(
     resamples = folds,
     grid = param_grid,
-    metrics = metric_set(roc_auc, accuracy),
-    # predictors = -los_long
-    )) |>
-  system.time()
-logit_fit
+    metrics = metric_set(roc_auc, accuracy)
+    )
+gb_fit
 ```
 
 Visualize CV results:
 ```{r}
-logit_fit |>
-  # aggregate metrics from K folds
+gb_fit |>
   collect_metrics() |>
   print(width = Inf) |>
   filter(.metric == "roc_auc") |>
-  ggplot(mapping = aes(x = penalty, y = mean, color = factor(mixture))) +
+  ggplot(mapping = aes(x = learn_rate, y = mean, color = factor(tree_depth))) +
   geom_point() +
-  labs(x = "Penalty", y = "CV AUC") +
+  labs(x = "Learning Rate", y = "CV AUC") +
   scale_x_log10()
 ```
 
 Show the top 5 models.
 ```{r}
-logit_fit |>
+gb_fit |>
   show_best("roc_auc")
 ```
 Let's select the best model.
 ```{r}
-best_logit <- logit_fit |>
+best_gb <- gb_fit |>
   select_best("roc_auc")
-best_logit
+best_gb
 ```
-
 
 ## Finalize our model
 
@@ -213,8 +216,8 @@ Now we are done tuning. Finally, let’s fit this final model to the whole train
 
 ```{r}
 # Final workflow
-final_wf <- logit_wf |>
-  finalize_workflow(best_logit)
+final_wf <- gb_wf |>
+  finalize_workflow(best_gb)
 final_wf
 ```
 
