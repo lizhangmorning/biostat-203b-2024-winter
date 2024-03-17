@@ -1,0 +1,224 @@
+---
+title: "Machine Learning Workflow: Random Forest for Classification (MIMIC-IV Data)"
+subtitle: "Biostat 203B"
+author: "Li Zhang @ UCLA UID:206305918"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+## Setup
+
+Display system information for reproducibility.
+
+```{r}
+sessionInfo()
+```
+
+The goal is to predict whether a patient’s ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. 
+
+## MIMIC-IV Cohort
+```{r} 
+library(GGally)
+library(gtsummary)
+library(tidyverse)
+library(tidymodels)
+library(dplyr)
+library(rsample)
+
+mimiciv_icu_cohort <- readRDS("/Users/zhangli/203b_hw_new/hw4/mimiciv_shiny/mimic_icu_cohort.rds")|>
+  arrange(subject_id, hadm_id, stay_id)
+
+# Numerical summaries stratified by the outcome `los_long`.
+mimiciv_icu_cohort <- mimiciv_icu_cohort %>%
+  select(
+    -subject_id, -hadm_id, -stay_id, -los, -dod,
+    -intime, -outtime, -admittime, -last_careunit,
+    -dischtime, -deathtime, -admit_provider_id,
+    -edregtime, -edouttime, -anchor_age,
+    -anchor_year, -anchor_year_group,
+    -discharge_location, -hospital_expire_flag
+  ) %>%
+mutate(los_long = as.factor(los_long))
+
+tbl_summary(mimiciv_icu_cohort, by = los_long)
+```
+
+- We have following features available at an ICU stay’s `intime`: 
+
+    - Numerical features: `intimeage`, `Bicarbonate`, `Glucose`, `Sodium`, `Chloride`, `Hematocrit`, `Potassium`, `White Blood Cells`, `Creatinine`, `Respiratory Rate`, `Non Invasive Blood Pressure diastolic`, `Heart Rate`, `Non Invasive Blood Pressure systolic`, `Temperature Fahrenheit`.
+
+    - Categorical features coded as string:  `first_careunit`, `admission_type`, `admission_location`, `insurance`, `language`, `marital_status`, `race`, `gender`
+
+## Initial split into test and non-test sets
+
+```{r}
+set.seed(203)
+data_split <- initial_split(
+  mimiciv_icu_cohort, 
+  # stratify by los_long
+  strata = "los_long", 
+  prop = 0.5
+  )
+data_split
+
+mimic_other <- training(data_split)
+dim(mimic_other)
+mimic_test <- testing(data_split)
+dim(mimic_test)
+```
+
+## Recipe
+
+```{r}
+rf_recipe <- 
+  recipe(
+    los_long ~ ., 
+    data = mimic_other
+  ) |>
+
+  step_impute_mean(Bicarbonate) |>
+  step_impute_mean(Glucose) |>
+  step_impute_mean(Sodium) |>
+  step_impute_mean(Chloride) |>
+  step_impute_mean(Hematocrit) |>
+  step_impute_mean(Potassium) |>
+  step_impute_mean('White Blood Cells') |>
+  step_impute_mean(Creatinine) |>
+  step_impute_mean('Respiratory Rate') |>
+  step_impute_mean('Non Invasive Blood Pressure diastolic') |>
+  step_impute_mean('Heart Rate') |>
+  step_impute_mean('Non Invasive Blood Pressure systolic') |>
+  step_impute_mean('Temperature Fahrenheit') |>
+
+  step_impute_mode(marital_status) |>
+
+  step_zv(all_numeric_predictors()) |> 
+
+  # prep(training = Heart_other, retain = TRUE) |>
+  print()
+```
+
+## Model
+
+```{r}
+rf_mod <- 
+  rand_forest(
+    mode = "classification",
+    # Number of predictors randomly sampled in each split
+    mtry = tune(),
+    # Number of trees in ensemble
+    trees = tune()
+  ) |> 
+  set_engine("ranger")
+rf_mod
+```
+
+## Workflow
+
+Here we bundle the recipe and model.
+
+```{r}
+rf_wf <- workflow() |>
+  add_recipe(rf_recipe) |>
+  add_model(rf_mod)
+rf_wf
+```
+
+## Tuning grid
+
+Here we tune the number of trees `trees` and the number of features to use in each split `mtry`.
+
+```{r}
+param_grid <- grid_regular(
+  trees(range = c(100L, 500L)), 
+  mtry(range = c(1L, 5L)),
+  levels = c(5, 5)
+  )
+param_grid
+```
+
+## Cross-validation (CV)
+
+Set cross-validation partitions.
+```{r}
+set.seed(203)
+
+folds <- vfold_cv(Heart_other, v = 5)
+folds
+```
+
+Fit cross-validation.
+```{r}
+rf_fit <- rf_wf |>
+  tune_grid(
+    resamples = folds,
+    grid = param_grid,
+    metrics = metric_set(roc_auc, accuracy)
+    )
+rf_fit
+```
+
+Visualize CV results:
+```{r}
+rf_fit |>
+  collect_metrics() |>
+  print(width = Inf) |>
+  filter(.metric == "roc_auc") |>
+  ggplot(mapping = aes(x = trees, y = mean, color = factor(mtry))) +
+  geom_point() + 
+  # geom_line() + 
+  labs(x = "Num. of Trees", y = "CV AUC")
+```
+
+Show the top 5 models.
+```{r}
+rf_fit |>
+  show_best("roc_auc")
+```
+Let's select the best model.
+```{r}
+best_rf <- rf_fit |>
+  select_best("roc_auc")
+best_rf
+```
+
+## Finalize our model
+
+Now we are done tuning. Finally, let’s fit this final model to the whole training data and use our test data to estimate the model performance we expect to see with new data.
+
+```{r}
+# Final workflow
+final_wf <- rf_wf |>
+  finalize_workflow(best_rf)
+final_wf
+```
+
+```{r}
+# Fit the whole training set, then predict the test cases
+final_fit <- 
+  final_wf |>
+  last_fit(data_split)
+final_fit
+```
+
+```{r}
+# Test metrics
+final_fit |> 
+  collect_metrics()
+```
