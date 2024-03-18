@@ -31,6 +31,9 @@ library(tidyverse)
 library(tidymodels)
 library(dplyr)
 library(rsample)
+library(parsnip)
+library(tune)
+library(stacks)
 
 mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")|>
   arrange(subject_id, hadm_id, stay_id)
@@ -77,7 +80,7 @@ dim(mimic_test)
 ## Recipe
 
 ```{r}
-gb_recipe <- 
+mimic_recipe <- 
   recipe(
     los_long ~ ., 
     data = mimic_other
@@ -116,7 +119,10 @@ We will use three different model definitions to try to classify the outcome `lo
 
 First we set up the cross-validation folds to be shared by all models.
 
-Set up model.
+```{r}
+set.seed(203)
+folds <- vfold_cv(mimic_other, v = 5)
+```
 
 ::: {.panel-tabset}
 
@@ -168,7 +174,7 @@ Bundle the recipe (R) and model into workflow.
 
 ```{r}
 logit_wf <- workflow() |>
-  add_recipe(heart_recipe) |>
+  add_recipe(mimic_recipe) |>
   add_model(logit_mod)
 logit_wf
 ```
@@ -177,7 +183,7 @@ logit_wf
 
 ```{r}
 rf_wf <- workflow() |>
-  add_recipe(rf_recipe) |>
+  add_recipe(mimic_recipe) |>
   add_model(rf_mod)
 rf_wf
 ```
@@ -186,7 +192,7 @@ rf_wf
 
 ```{r}
 gb_wf <- workflow() |>
-  add_recipe(gb_recipe) |>
+  add_recipe(mimic_recipe) |>
   add_model(gb_mod)
 gb_wf
 ```
