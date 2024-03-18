@@ -41,7 +41,8 @@ library(tidymodels)
 library(dplyr)
 library(rsample)
 
-mimiciv_icu_cohort <- readRDS("/Users/zhangli/203b_hw_new/hw4/mimiciv_shiny/mimic_icu_cohort.rds")|>
+
+mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")|>
   arrange(subject_id, hadm_id, stay_id)
 
 # Numerical summaries stratified by the outcome `los_long`.
@@ -146,7 +147,7 @@ Here we tune the number of trees `trees` and the number of features to use in ea
 
 ```{r}
 param_grid <- grid_regular(
-  trees(range = c(100L, 500L)), 
+  trees(range = c(1000L, 2000L)), 
   mtry(range = c(1L, 5L)),
   levels = c(5, 5)
   )
@@ -159,7 +160,7 @@ Set cross-validation partitions.
 ```{r}
 set.seed(203)
 
-folds <- vfold_cv(Heart_other, v = 5)
+folds <- vfold_cv(mimic_other, v = 5)
 folds
 ```
 
@@ -182,7 +183,7 @@ rf_fit |>
   filter(.metric == "roc_auc") |>
   ggplot(mapping = aes(x = trees, y = mean, color = factor(mtry))) +
   geom_point() + 
-  # geom_line() + 
+  geom_line() + 
   labs(x = "Num. of Trees", y = "CV AUC")
 ```
 
