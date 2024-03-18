@@ -41,7 +41,10 @@ library(tidymodels)
 library(dplyr)
 library(rsample)
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> d00b72244ab684e3e62717d88412bc8a0df03f7c
 mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")|>
   arrange(subject_id, hadm_id, stay_id)
 
