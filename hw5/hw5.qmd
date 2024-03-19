@@ -207,9 +207,9 @@ gb_wf
 
 ```{r}
 logit_grid <- grid_regular(
-  penalty(range = c(-6, 3)), 
+  penalty(range = c(-3, 0)), 
   mixture(),
-  levels = c(100, 5)
+  levels = c(50, 3)
   )
 
 logit_res <- 
@@ -226,9 +226,9 @@ logit_res
 
 ```{r}
 rf_grid <- grid_regular(
-  trees(range = c(100L, 500L)), 
-  mtry(range = c(1L, 5L)),
-  levels = c(5, 5)
+  trees(range = c(1000L, 2000L)), 
+  mtry(range = c(1L, 3L)),
+  levels = c(3, 3)
   )
 
 rf_res <- 
@@ -246,8 +246,8 @@ rf_res
 ```{r}
 param_grid <- grid_regular(
   tree_depth(range = c(1L, 3L)),
-  learn_rate(range = c(-3, 2), trans = log10_trans()),
-  levels = c(3, 10)
+  learn_rate(range = c(-3, 0), trans = log10_trans()),
+  levels = c(3, 5)
   )
 param_grid
 
@@ -304,7 +304,7 @@ autoplot(mimic_model_st, type = "weights")
 To identify which model configurations were assigned what stacking coefficients, we can make use of the `collect_parameters()` function:
 
 ```{r}
-collect_parameters(heart_model_st, "rf_res")
+collect_parameters(mimic_model_st, "rf_res")
 ```
 
 ## Final classification
@@ -320,7 +320,7 @@ Computing the ROC AUC for the model:
 yardstick::roc_auc(
   mimic_pred,
   truth = los_long,
-  contains(".pred_No")
+  contains(".pred_FALSE")
   )
 ```
 
