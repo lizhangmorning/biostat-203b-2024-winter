@@ -1,3 +1,127 @@
+---
+title: "Machine Learning Workflow: MLP (MIMIC-IV Data)"
+subtitle: "Biostat 203B"
+author: "Li Zhang @ UCLA 206305918"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+execute:
+  warning: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+## Setup
+
+Display system information for reproducibility.
+
+```{r}
+sessionInfo()
+```
+
+The goal is to predict whether a patient’s ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. 
+
+## MIMIC-IV Cohort
+```{r} 
+library(GGally)
+library(gtsummary)
+library(tidyverse)
+library(tidymodels)
+library(dplyr)
+library(rsample)
+
+mimiciv_icu_cohort <- readRDS("../hw4/mimiciv_shiny/mimic_icu_cohort.rds")|>
+  arrange(subject_id, hadm_id, stay_id)
+
+# Numerical summaries stratified by the outcome `los_long`.
+mimiciv_icu_cohort <- mimiciv_icu_cohort %>%
+  select(
+    -subject_id, -hadm_id, -stay_id, -los, -dod,
+    -intime, -outtime, -admittime, -last_careunit,
+    -dischtime, -deathtime, -admit_provider_id,
+    -edregtime, -edouttime, -anchor_age,
+    -anchor_year, -anchor_year_group,
+    -discharge_location, -hospital_expire_flag
+  ) %>%
+mutate(los_long = as.factor(los_long))
+
+tbl_summary(mimiciv_icu_cohort, by = los_long)
+```
+
+- We have following features available at an ICU stay’s `intime`: 
+
+    - Numerical features: `intimeage`, `Bicarbonate`, `Glucose`, `Sodium`, `Chloride`, `Hematocrit`, `Potassium`, `White Blood Cells`, `Creatinine`, `Respiratory Rate`, `Non Invasive Blood Pressure diastolic`, `Heart Rate`, `Non Invasive Blood Pressure systolic`, `Temperature Fahrenheit`.
+
+    - Categorical features coded as string:  `first_careunit`, `admission_type`, `admission_location`, `insurance`, `language`, `marital_status`, `race`, `gender`
+
+## Initial split into test and non-test sets
+
+```{r}
+set.seed(203)
+data_split <- initial_split(
+  mimiciv_icu_cohort, 
+  # stratify by los_long
+  strata = "los_long", 
+  prop = 0.5
+  )
+data_split
+
+mimic_other <- training(data_split)
+dim(mimic_other)
+mimic_test <- testing(data_split)
+dim(mimic_test)
+```
+
+## Recipe
+
+```{r}
+mimic_recipe <- 
+  recipe(
+    los_long ~ ., 
+    data = mimic_other
+  ) |>
+
+  step_impute_mean(Bicarbonate) |>
+  step_impute_mean(Glucose) |>
+  step_impute_mean(Sodium) |>
+  step_impute_mean(Chloride) |>
+  step_impute_mean(Hematocrit) |>
+  step_impute_mean(Potassium) |>
+  step_impute_mean('White Blood Cells') |>
+  step_impute_mean(Creatinine) |>
+  step_impute_mean('Respiratory Rate') |>
+  step_impute_mean('Non Invasive Blood Pressure diastolic') |>
+  step_impute_mean('Heart Rate') |>
+  step_impute_mean('Non Invasive Blood Pressure systolic') |>
+  step_impute_mean('Temperature Fahrenheit') |>
+
+  step_impute_mode(marital_status) |>
+  
+  # create traditional dummy variables
+  step_dummy(all_nominal_predictors()) |>
+  # zero-variance filter
+  step_zv(all_numeric_predictors()) |> 
+  # center and scale numeric data
+  step_normalize(all_numeric_predictors()) |>
+  # estimate the means and standard deviations
+  # prep(training = Heart_other, retain = TRUE) |>
+  print()
+```
+
+
 ## Model
 
 ```{r}
@@ -18,7 +142,7 @@ Here we bundle the preprocessing step (Python) or recipe (R) and model.
 
 ```{r}
 mlp_wf <- workflow() |>
-  add_recipe(mlp_recipe) |>
+  add_recipe(mimic_recipe) |>
   add_model(mlp_mod)
 mlp_wf
 ```
@@ -53,8 +177,22 @@ folds
 
 Fit cross-validation.
 ```{r}
+# In R
+library(reticulate)
+use_condaenv("r-reticulate", required = TRUE)
+py_install("tensorflow", envname = "r-reticulate")
 
+# In R
+library(reticulate)
+use_condaenv("r-reticulate", required = TRUE)
+py_module_available("tensorflow")
+py_module_available("tensorflow.keras")
 
+py_install("tensorflow==2.15", envname = "r-reticulate")
+
+install_keras()
+library(keras)
+library(tidymodels)
 mlp_fit <- mlp_wf |>
   tune_grid(
     resamples = folds,
