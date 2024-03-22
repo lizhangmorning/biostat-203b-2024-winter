@@ -222,3 +222,18 @@ final_fit
 final_fit |> 
   collect_metrics()
 ```
+
+## Visualize the final model
+
+```{r}
+library(rpart.plot)
+final_tree <- extract_workflow(final_fit)
+final_tree
+```
+
+```{r}
+library(vip)
+final_tree %>% 
+  extract_fit_parsnip() %>% 
+  vip()
+```
