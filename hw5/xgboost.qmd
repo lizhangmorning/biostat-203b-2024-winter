@@ -151,7 +151,7 @@ Here we tune the number of trees `trees` and the number of features to use in ea
 ```{r}
 param_grid <- grid_regular(
   tree_depth(range = c(1L, 3L)),
-  learn_rate(range = c(-3, 2), trans = log10_trans()),
+  learn_rate(range = c(-2, 4), trans = log10_trans()),
   levels = c(3, 10)
   )
 param_grid
@@ -226,4 +226,18 @@ final_fit
 # Test metrics
 final_fit |> 
   collect_metrics()
+```
+## Visualize the final model
+```{r}
+library(rpart.plot)
+final_tree <- extract_workflow(final_fit)
+final_tree
+```
+
+```{r}
+library(vip)
+
+final_tree %>% 
+  extract_fit_parsnip() %>% 
+  vip()
 ```
