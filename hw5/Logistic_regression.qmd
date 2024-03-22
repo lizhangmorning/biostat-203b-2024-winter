@@ -231,3 +231,17 @@ final_fit
 final_fit |> 
   collect_metrics()
 ```
+
+## Visualize the final model
+```{r}
+library(rpart.plot)
+final_logit <- extract_workflow(final_fit)
+final_logit
+```
+
+```{r}
+library(vip)
+final_logit %>%
+  extract_fit_parsnip() %>%
+  vip()
+```
