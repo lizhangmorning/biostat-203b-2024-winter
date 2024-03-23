@@ -1,0 +1,89 @@
+---
+title: "Homework 5 Summary (tidymodels)"
+subtitle: "Biostat 203B"
+author: "Li Zhang @ UCLA 206305918"
+date: today
+format:
+  html:
+    theme: cosmo
+    embed-resources: true
+    number-sections: true
+    toc: true
+    toc-depth: 4
+    toc-location: left
+    code-fold: false
+engine: knitr
+knitr:
+  opts_chunk: 
+    fig.align: 'center'
+    # fig.width: 6
+    # fig.height: 4
+    message: FALSE
+    cache: false
+---
+
+# Overview
+
+Predicting ICU duration
+
+Using the ICU cohort `mimiciv_icu_cohort.rds` you built in Homework 4, develop at least three machine learning approaches (logistic regression with enet regularization, random forest, boosting, SVM, MLP, etc) plus a model stacking approach for predicting whether a patient's ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. You algorithms can use patient demographic information (gender, age at ICU `intime`, marital status, race), ICU admission information (first care unit), the last lab measurements before the ICU stay, and first vital measurements during ICU stay as features. You are welcome to use any feature engineering techniques you think are appropriate; but make sure to not use features that are not available at an ICU stay's `intime`. For instance, `last_careunit` cannot be used in your algorithms. 
+
+- The goal is to predict whether a patient’s ICU stay will be longer than 2 days. You should use the `los_long` variable as the outcome. 
+
+# Tidymodels
+
+## Logistic regression (with enet regularization) workflow
+
+[qmd](https://github.com/lizhangmorning/biostat-203b-2024-winter/blob/95d1d5989d518899a60ea962469f722d4ec3bdc4/hw5/Logistic_regression.qmd),
+[html](https://github.com/lizhangmorning/biostat-203b-2024-winter/blob/95d1d5989d518899a60ea962469f722d4ec3bdc4/hw5/Logistic_regression.html)
+
+## Random forest workflow
+
+[qmd](https://github.com/lizhangmorning/biostat-203b-2024-winter/blob/95d1d5989d518899a60ea962469f722d4ec3bdc4/hw5/rf.qmd),
+[html](https://github.com/lizhangmorning/biostat-203b-2024-winter/blob/95d1d5989d518899a60ea962469f722d4ec3bdc4/hw5/rf.html)
+
+## Boosting (XGBoost) workflow
+
+[qmd](https://github.com/lizhangmorning/biostat-203b-2024-winter/blob/95d1d5989d518899a60ea962469f722d4ec3bdc4/hw5/xgboost.qmd), [html](https://github.com/lizhangmorning/biostat-203b-2024-winter/blob/95d1d5989d518899a60ea962469f722d4ec3bdc4/hw5/xgboost.html)
+
+## Ensemble (model stacking) workflow
+
+> We differentiate **homogenous ensemble** (e.g., bagging, boosting) from **heterogeneous ensemble** (e.g., stacking). The former uses the same type of model (e.g., random forest) to build multiple models and then combine them. The latter uses different types of models (e.g., random forest, SVM, and neural network) to build multiple models and then combine them.
+
+[qmd](https://github.com/lizhangmorning/biostat-203b-2024-winter/blob/95d1d5989d518899a60ea962469f722d4ec3bdc4/hw5/stack.qmd), [html](https://github.com/lizhangmorning/biostat-203b-2024-winter/blob/95d1d5989d518899a60ea962469f722d4ec3bdc4/hw5/stack.html)
+
+# Summary
+
+Compare model classification performance on the test set. Report both the area under ROC curve and accuracy for each machine learning algorithm and the model stacking. Interpret the results. What are the most important features in predicting long ICU stays? How do the models compare in terms of performance and interpretability?
+
+
+- Performance Comparison:
+
+| Method | ROC | Accuracy |
+|:------:|:------:|:------:|:------:|
+| Logistic regression |0.606 |0.578 | |
+| Random forest |0.647 |0.606 ||
+| Boosting |0.651 |0.609 | |
+| Stacking |0.655 |0.610 | |
+
+The ROC AUC values indicate the predictive performance of each model. A higher ROC AUC value (closer to 1) suggests better performance. Based on the results, Boosting achieved the highest ROC AUC on the test set (0.651), followed by Random Forest (0.647), and then Logistic Regression (0.606). The ROC AUC for the stacked model can be calculated using the provided code.
+
+Similarly, accuracy measures the proportion of correctly classified samples. Boosting had the highest accuracy on the test set (0.609), followed by Random Forest (0.606), and then Logistic Regression (0.578). The accuracy of the stacked model can also be computed using the provided code.
+
+- Interpretation:
+
+The most important features in predicting long ICU stays vary across different models. 
+
+For Logistic regression, the most important features in predicting long ICU stays are `first_careunit`, `Heart Rate` and `admission_location`.
+
+For random forest, the most important features in predicting long ICU stays are `Non Invasive Blood Pressure systolic`,`Heart Rate` and `White Blood Cells`.
+
+For boosting, the most important features in predicting long ICU stays are `Temperature Fahrenheit`, `Heart Rate` and `Non Invasive Blood Pressure systolic`.
+
+- Performance and Interpretability Comparison:
+
+In terms of performance, Boosting and Random Forest outperformed Logistic Regression based on ROC AUC and accuracy. However, Logistic Regression models are often easier to interpret due to their direct coefficient or weight assignments. 
+
+In contrast, Boosting and Random Forest models are considered less interpretable due to their complex ensemble learning nature. Model stacking combines multiple base models' predictions to enhance performance while potentially maintaining some level of interpretability.
+
+In conclusion, Boosting demonstrated the best performance on the test set, while Logistic Regression may offer better interpretability. The choice between models or model combinations should consider both performance requirements and interpretability needs for the specific task and context.
